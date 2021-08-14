@@ -12,7 +12,9 @@ import (
 
 // Our custom claimes for the JWT Token
 type ClaimsWithRole struct {
-	UserRole string `json:"role"`
+	UserRoleSlug  string `json:"roleSlug"`
+	UserRoleLabel string `json:"roleLabel"`
+	Username      string `json:"username"`
 	jwt.StandardClaims
 }
 
@@ -62,6 +64,8 @@ func (t TokenManager) GenerateRefreshToken(ctx context.Context, user *domain.Use
 func (t TokenManager) GenerateJWT(user *domain.User) (string, error) {
 	claims := ClaimsWithRole{
 		user.Role.RoleSlug,
+		user.Role.RoleLabel,
+		user.Username,
 		jwt.StandardClaims{
 			Issuer:    user.ID.String(),
 			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
