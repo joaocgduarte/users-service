@@ -20,7 +20,7 @@ func New(db *sql.DB) domain.UserRepository {
 }
 
 // Scans a user row without the deleted_at value
-func (r PostgresRepository) scanUserRow(row *sql.Row) (domain.User, error) {
+func (r PostgresRepository) scanUserRow(row *sql.Row) (*domain.User, error) {
 	result := domain.User{}
 	err := row.Scan(
 		&result.ID,
@@ -34,19 +34,19 @@ func (r PostgresRepository) scanUserRow(row *sql.Row) (domain.User, error) {
 	)
 
 	if err != nil {
-		return domain.User{}, err
+		return &domain.User{}, err
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 // Lists the users in the DB in a paginated matter.
-func (r PostgresRepository) List(ctx context.Context, page int, perPage int) (domain.User, error) {
+func (r PostgresRepository) List(ctx context.Context, page int, perPage int) ([]domain.User, error) {
 	panic("to be implemented")
 }
 
 // Stores a new user into the DB
-func (r PostgresRepository) Store(ctx context.Context, user domain.User) (domain.User, error) {
+func (r PostgresRepository) Store(ctx context.Context, user domain.User) (*domain.User, error) {
 	if user.ID == uuid.Nil {
 		user.ID = uuid.New()
 	}
@@ -58,7 +58,7 @@ func (r PostgresRepository) Store(ctx context.Context, user domain.User) (domain
 	statement, err := r.Db.PrepareContext(ctx, query)
 
 	if err != nil {
-		return domain.User{}, err
+		return &domain.User{}, err
 	}
 
 	row := statement.
@@ -77,7 +77,7 @@ func (r PostgresRepository) Store(ctx context.Context, user domain.User) (domain
 }
 
 // Gets a user by uuid
-func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (domain.User, error) {
+func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*domain.User, error) {
 	query := `
 		SELECT id, first_name, last_name, username, password, role_id, created_at, updated_at 
 		FROM users 
@@ -88,7 +88,7 @@ func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (doma
 	statement, err := r.Db.PrepareContext(ctx, query)
 
 	if err != nil {
-		return domain.User{}, err
+		return &domain.User{}, err
 	}
 
 	row := statement.QueryRowContext(ctx, uuid)
@@ -96,7 +96,7 @@ func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (doma
 }
 
 // Gets a user by their respective username.
-func (r PostgresRepository) GetByUsername(ctx context.Context, username string) (domain.User, error) {
+func (r PostgresRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
 	query := `
 		SELECT id, first_name, last_name, username, password, role_id, created_at, updated_at 
 		FROM users 
@@ -107,7 +107,7 @@ func (r PostgresRepository) GetByUsername(ctx context.Context, username string) 
 	statement, err := r.Db.PrepareContext(ctx, query)
 
 	if err != nil {
-		return domain.User{}, err
+		return &domain.User{}, err
 	}
 
 	row := statement.QueryRowContext(ctx, username)
