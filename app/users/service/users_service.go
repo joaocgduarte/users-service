@@ -118,3 +118,7 @@ func (s DefaultUserService) GetUserByUUID(ctx context.Context, id uuid.UUID) (*d
 	user.Role = &userRole
 	return user, nil
 }
+
+func (s DefaultUserService) GetRefreshToken(ctx context.Context, user *domain.User) error {
+	panic("cenas")
+}
