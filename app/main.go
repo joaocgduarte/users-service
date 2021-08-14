@@ -12,6 +12,7 @@ import (
 	_posgresConnection "github.com/plagioriginal/user-microservice/database/connection/postgres"
 	"github.com/plagioriginal/user-microservice/database/migrations"
 	"github.com/plagioriginal/user-microservice/helpers"
+	_refreshTokensMigrations "github.com/plagioriginal/user-microservice/refresh_tokens/migrations"
 	_rolesMigrations "github.com/plagioriginal/user-microservice/roles/migrations"
 	_rolesRepo "github.com/plagioriginal/user-microservice/roles/repository/postgres"
 	"github.com/plagioriginal/user-microservice/server"
@@ -31,6 +32,8 @@ func doMigrations(l *log.Logger, db *sql.DB) {
 			_rolesMigrations.NewAddRolesMigration(),
 			_usersMigrations.NewCreateUsersMigration(),
 			_usersMigrations.NewAddDefaultUserMigration(),
+			_refreshTokensMigrations.NewCreateRefreshTokensMigration(),
+			_usersMigrations.NewAddRefreshTokenReferenceMigration(),
 		},
 	}
 
@@ -75,7 +78,7 @@ func main() {
 
 	userRepo := _usersRepo.New(db)
 	roleRepo := _rolesRepo.New(db)
-	tokenManager := tokens.New(os.Getenv("JWT_GENERATOR_SECRET"))
+	tokenManager := tokens.NewTokenManager(os.Getenv("JWT_GENERATOR_SECRET"))
 	timeoutContext := time.Duration(2) * time.Second
 
 	ctx := context.Background()
