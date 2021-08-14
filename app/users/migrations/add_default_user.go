@@ -29,7 +29,7 @@ func AddDefaultUser(ctx context.Context, db *sql.DB) error {
 	userService := service.New(
 		userRepo,
 		roleRepo,
-		tokens.New(ctx.Value("jwtSecret").(string)),
+		tokens.NewTokenManager(ctx.Value("jwtSecret").(string)),
 		time.Duration(2)*time.Second,
 	)
 
