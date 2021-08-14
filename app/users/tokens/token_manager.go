@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -17,12 +18,44 @@ type ClaimsWithRole struct {
 
 // Object used to manage token/auth operations
 type TokenManager struct {
-	JWTSecret string
+	JWTSecret           string
+	RefreshTokenService domain.RefreshTokenService
 }
 
 // Instantiates a new Token Manager
-func NewTokenManager(jwtSecret string) TokenManager {
-	return TokenManager{JWTSecret: jwtSecret}
+func NewTokenManager(jwtSecret string, refreshTokenService domain.RefreshTokenService) TokenManager {
+	return TokenManager{JWTSecret: jwtSecret, RefreshTokenService: refreshTokenService}
+}
+
+// Gets all the tokens as token response.
+func (t TokenManager) GenerateTokens(ctx context.Context, user *domain.User) (domain.TokenResponse, error) {
+	jwtToken, err := t.GenerateJWT(user)
+
+	if err != nil {
+		return domain.TokenResponse{}, err
+	}
+
+	refreshToken, err := t.GenerateRefreshToken(ctx, user)
+
+	if err != nil {
+		return domain.TokenResponse{}, err
+	}
+
+	return domain.TokenResponse{
+		AccessToken:  jwtToken,
+		RefreshToken: refreshToken.String(),
+	}, nil
+}
+
+// Gets the regresh token
+func (t TokenManager) GenerateRefreshToken(ctx context.Context, user *domain.User) (uuid.UUID, error) {
+	refreshToken, err := t.RefreshTokenService.GenerateRefreshToken(ctx, user)
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return refreshToken.Token, nil
 }
 
 // Generates a new JWT token for a given user.

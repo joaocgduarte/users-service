@@ -115,3 +115,26 @@ func (r PostgresRepository) GetByUsername(ctx context.Context, username string) 
 	row := statement.QueryRowContext(ctx, username)
 	return r.scanUserRow(row)
 }
+
+// Saves a refresh token into the columns that has that link
+func (r PostgresRepository) SaveRefreshToken(ctx context.Context, user *domain.User, token domain.RefreshToken) error {
+	query := `
+		UPDATE users
+		SET refresh_token_id = $1
+		WHERE id = $2
+	`
+
+	stmt, err := r.Db.PrepareContext(ctx, query)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.ExecContext(ctx, token.Id, user.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

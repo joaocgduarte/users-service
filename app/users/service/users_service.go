@@ -7,14 +7,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
-	"github.com/plagioriginal/user-microservice/users/tokens"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type DefaultUserService struct {
 	UserRepo       domain.UserRepository
 	RoleRepo       domain.RoleRepository
-	TokenManager   tokens.TokenManager
 	ContextTimeout time.Duration
 }
 
@@ -22,13 +20,11 @@ type DefaultUserService struct {
 func New(
 	userRepo domain.UserRepository,
 	roleRepo domain.RoleRepository,
-	tokenManager tokens.TokenManager,
 	contextTimeout time.Duration,
 ) domain.UserService {
 	return DefaultUserService{
 		userRepo,
 		roleRepo,
-		tokenManager,
 		contextTimeout,
 	}
 }
@@ -63,25 +59,25 @@ func (s DefaultUserService) Store(ctx context.Context, username string, password
 	return user, nil
 }
 
-// Gets the user login JWT
-func (s DefaultUserService) GetLoginJWT(ctx context.Context, username string, password string) (string, error) {
+// Gets a user by the username and password. With role attached
+func (s DefaultUserService) GetUserByLogin(ctx context.Context, username string, password string) (*domain.User, error) {
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()
 
 	if len(username) == 0 || len(password) == 0 {
-		return "", domain.ErrBadParamInput
+		return &domain.User{}, domain.ErrBadParamInput
 	}
 
 	user, err := s.UserRepo.GetByUsername(ctx, username)
 
 	if err != nil || user.ID == uuid.Nil {
-		return "", domain.ErrNotFound
+		return &domain.User{}, domain.ErrNotFound
 	}
 
 	userRole, err := s.RoleRepo.GetByUUID(ctx, user.RoleId)
 
 	if err != nil {
-		return "", domain.ErrNotFound
+		return &domain.User{}, domain.ErrNotFound
 	}
 
 	user.Role = &userRole
@@ -89,10 +85,10 @@ func (s DefaultUserService) GetLoginJWT(ctx context.Context, username string, pa
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
 	if err != nil {
-		return "", domain.ErrNotFound
+		return &domain.User{}, domain.ErrNotFound
 	}
 
-	return s.TokenManager.GenerateJWT(user)
+	return user, nil
 }
 
 func (s DefaultUserService) GetUserByUUID(ctx context.Context, id uuid.UUID) (*domain.User, error) {

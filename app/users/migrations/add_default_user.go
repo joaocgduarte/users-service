@@ -10,8 +10,7 @@ import (
 	"github.com/plagioriginal/user-microservice/domain"
 	_rolesRepo "github.com/plagioriginal/user-microservice/roles/repository/postgres"
 	_usersRepo "github.com/plagioriginal/user-microservice/users/repository/postgres"
-	"github.com/plagioriginal/user-microservice/users/service"
-	"github.com/plagioriginal/user-microservice/users/tokens"
+	_usersService "github.com/plagioriginal/user-microservice/users/service"
 )
 
 // Adds default user to the DB.
@@ -22,15 +21,15 @@ func AddDefaultUser(ctx context.Context, db *sql.DB) error {
 		return errors.New("cant add default users without credentials")
 	}
 
+	timeoutDuration := time.Duration(2) * time.Second
 	roleRepo := _rolesRepo.New(db)
 	userRepo := _usersRepo.New(db)
 	adminRoleSlug := domain.DEFAULT_ROLE_ADMIN.RoleSlug
 
-	userService := service.New(
+	userService := _usersService.New(
 		userRepo,
 		roleRepo,
-		tokens.NewTokenManager(ctx.Value("jwtSecret").(string)),
-		time.Duration(2)*time.Second,
+		timeoutDuration,
 	)
 
 	userService.Store(ctx, defaultUserUsername, defaultUserPassword, adminRoleSlug)

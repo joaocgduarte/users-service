@@ -13,13 +13,15 @@ import (
 	"github.com/plagioriginal/user-microservice/database/migrations"
 	"github.com/plagioriginal/user-microservice/helpers"
 	_refreshTokensMigrations "github.com/plagioriginal/user-microservice/refresh_tokens/migrations"
+	_refreshTokensRepo "github.com/plagioriginal/user-microservice/refresh_tokens/repository/postgres"
+	_refreshTokensService "github.com/plagioriginal/user-microservice/refresh_tokens/service"
 	_rolesMigrations "github.com/plagioriginal/user-microservice/roles/migrations"
 	_rolesRepo "github.com/plagioriginal/user-microservice/roles/repository/postgres"
 	"github.com/plagioriginal/user-microservice/server"
 	"github.com/plagioriginal/user-microservice/users/handler"
 	_usersMigrations "github.com/plagioriginal/user-microservice/users/migrations"
 	_usersRepo "github.com/plagioriginal/user-microservice/users/repository/postgres"
-	"github.com/plagioriginal/user-microservice/users/service"
+	_usersService "github.com/plagioriginal/user-microservice/users/service"
 	"github.com/plagioriginal/user-microservice/users/tokens"
 )
 
@@ -78,23 +80,32 @@ func main() {
 
 	doMigrations(logger, db)
 
+	timeoutContext := time.Duration(2) * time.Second
+	jwtTokenSecret := os.Getenv("JWT_GENERATOR_SECRET")
+
+	// Creating all the repos
 	userRepo := _usersRepo.New(db)
 	roleRepo := _rolesRepo.New(db)
-	tokenManager := tokens.NewTokenManager(os.Getenv("JWT_GENERATOR_SECRET"))
-	timeoutContext := time.Duration(2) * time.Second
+	refreshTokenRepo := _refreshTokensRepo.New(db)
 
+	// Creating all the services.
+	refreshTokenService := _refreshTokensService.New(refreshTokenRepo, userRepo, timeoutContext)
+	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService)
+	userService := _usersService.New(userRepo, roleRepo, timeoutContext)
+
+	// Doing all the actions
 	ctx := context.Background()
-	userService := service.New(userRepo, roleRepo, tokenManager, timeoutContext)
 
-	token, err := userService.GetLoginJWT(ctx, "admin", "password")
-	fmt.Println(token, err)
+	// Gets the user by login
+	user, _ := userService.GetUserByLogin(ctx, "admin", "password")
 
-	newToken, _ := tokenManager.ParseJWT(token)
+	// Generates the tokens of said user.
+	token, err := tokenManager.GenerateTokens(ctx, user)
+
+	newToken, _ := tokenManager.ParseJWT(token.AccessToken)
 	userId, err := tokenManager.GetUserIDFromToken(newToken)
 
-	loggedinUser, _ := userRepo.GetByUUID(ctx, userId)
-	userRole, _ := roleRepo.GetByUUID(ctx, loggedinUser.RoleId)
-	loggedinUser.Role = &userRole
+	loggedinUser, _ := userService.GetUserByUUID(ctx, userId)
 	fmt.Println(loggedinUser, "Role of said user: "+loggedinUser.Role.RoleLabel)
 
 	server := server.New(serverConfigs, logger)
