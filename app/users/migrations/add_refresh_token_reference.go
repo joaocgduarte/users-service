@@ -11,7 +11,7 @@ import (
 func AddRefreshTokenReference(ctx context.Context, db *sql.DB) error {
 	query := `
 		ALTER TABLE users
-		ADD COLUMN IF NOT EXISTS refresh_token_id uuid DEFAULT NULL REFERENCES refresh_tokens ON DELETE CASCADE ON UPDATE CASCADE
+		ADD COLUMN IF NOT EXISTS refresh_token_id uuid DEFAULT NULL REFERENCES refresh_tokens(id) ON DELETE SET NULL ON UPDATE CASCADE
 	`
 
 	_, err := db.ExecContext(ctx, query)

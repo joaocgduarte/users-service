@@ -28,12 +28,15 @@ func doMigrations(l *log.Logger, db *sql.DB) {
 		Logger: l,
 		Db:     db,
 		Migrations: []migrations.Migration{
+			// Migrations
 			_rolesMigrations.NewCreateRolesMigration(),
-			_rolesMigrations.NewAddRolesMigration(),
 			_usersMigrations.NewCreateUsersMigration(),
-			_usersMigrations.NewAddDefaultUserMigration(),
 			_refreshTokensMigrations.NewCreateRefreshTokensMigration(),
 			_usersMigrations.NewAddRefreshTokenReferenceMigration(),
+
+			// Seeds
+			_rolesMigrations.NewAddRolesMigration(),
+			_usersMigrations.NewAddDefaultUserMigration(),
 		},
 	}
 
@@ -43,7 +46,6 @@ func doMigrations(l *log.Logger, db *sql.DB) {
 	ctx = context.WithValue(ctx, "jwtSecret", os.Getenv("JWT_GENERATOR_SECRET"))
 
 	defer cancelfunc()
-
 	migrations.DoAll(ctx)
 }
 
@@ -83,6 +85,7 @@ func main() {
 
 	ctx := context.Background()
 	userService := service.New(userRepo, roleRepo, tokenManager, timeoutContext)
+
 	token, err := userService.GetLoginJWT(ctx, "admin", "password")
 	fmt.Println(token, err)
 
