@@ -94,7 +94,7 @@ func (t TokenManager) GetUserIDFromToken(token *jwt.Token) (uuid.UUID, error) {
 // Gets the user role from a jwt token
 func (t TokenManager) GetUserRoleFromToken(token *jwt.Token) (string, error) {
 	if claims, ok := token.Claims.(*ClaimsWithRole); ok && t.IsJWTokenValid(token) {
-		return claims.UserRole, nil
+		return claims.UserRoleSlug, nil
 	}
 
 	return "", errors.New("invalid token")
