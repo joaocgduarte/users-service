@@ -22,6 +22,7 @@ func New(db *sql.DB) domain.UserRepository {
 // Scans a user row without the deleted_at value
 func (r PostgresRepository) scanUserRow(row *sql.Row) (*domain.User, error) {
 	result := domain.User{}
+
 	err := row.Scan(
 		&result.ID,
 		&result.FirstName,
@@ -29,6 +30,7 @@ func (r PostgresRepository) scanUserRow(row *sql.Row) (*domain.User, error) {
 		&result.Username,
 		&result.Password,
 		&result.RoleId,
+		&result.RefreshTokenId,
 		&result.CreatedAt,
 		&result.UpdatedAt,
 	)
@@ -53,7 +55,7 @@ func (r PostgresRepository) Store(ctx context.Context, user domain.User) (*domai
 
 	query := `INSERT INTO users(id, first_name, last_name, username, password, role_id, created_at, updated_at) 
 			VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-			RETURNING *`
+			RETURNING id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at`
 
 	statement, err := r.Db.PrepareContext(ctx, query)
 
@@ -79,7 +81,7 @@ func (r PostgresRepository) Store(ctx context.Context, user domain.User) (*domai
 // Gets a user by uuid
 func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*domain.User, error) {
 	query := `
-		SELECT id, first_name, last_name, username, password, role_id, created_at, updated_at 
+		SELECT id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at
 		FROM users 
 		WHERE id = $1  AND deleted_at IS NULL
 		LIMIT 1
@@ -98,7 +100,7 @@ func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*dom
 // Gets a user by their respective username.
 func (r PostgresRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
 	query := `
-		SELECT id, first_name, last_name, username, password, role_id, created_at, updated_at 
+		SELECT id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at
 		FROM users 
 		WHERE username = $1 AND deleted_at IS NULL
 		LIMIT 1
