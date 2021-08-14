@@ -21,12 +21,12 @@ type TokenManager struct {
 }
 
 // Instantiates a new Token Manager
-func New(jwtSecret string) TokenManager {
+func NewTokenManager(jwtSecret string) TokenManager {
 	return TokenManager{JWTSecret: jwtSecret}
 }
 
 // Generates a new JWT token for a given user.
-func (t TokenManager) GenerateJWT(user domain.User) (string, error) {
+func (t TokenManager) GenerateJWT(user *domain.User) (string, error) {
 	claims := ClaimsWithRole{
 		user.Role.RoleSlug,
 		jwt.StandardClaims{

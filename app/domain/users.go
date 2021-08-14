@@ -21,12 +21,13 @@ type User struct {
 }
 
 type UserRepository interface {
-	Store(ctx context.Context, user User) (User, error)
-	GetByUUID(ctx context.Context, uuid uuid.UUID) (User, error)
-	GetByUsername(ctx context.Context, username string) (User, error)
+	Store(ctx context.Context, user User) (*User, error)
+	GetByUUID(ctx context.Context, uuid uuid.UUID) (*User, error)
+	GetByUsername(ctx context.Context, username string) (*User, error)
 }
 
 type UserService interface {
-	Store(ctx context.Context, username string, password string, roleSlug string) (User, error)
+	Store(ctx context.Context, username string, password string, roleSlug string) (*User, error)
 	GetLoginJWT(ctx context.Context, username string, password string) (string, error)
+	GetUserByUUID(ctx context.Context, uuid uuid.UUID) (*User, error)
 }

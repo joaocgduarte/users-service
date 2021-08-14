@@ -34,14 +34,14 @@ func New(
 }
 
 // Stores q new user based on username and password
-func (s DefaultUserService) Store(ctx context.Context, username string, password string, roleSlug string) (domain.User, error) {
+func (s DefaultUserService) Store(ctx context.Context, username string, password string, roleSlug string) (*domain.User, error) {
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()
 
 	role, err := s.RoleRepo.GetBySlug(ctx, roleSlug)
 
 	if err != nil {
-		return domain.User{}, errors.New("role doesn't exist")
+		return &domain.User{}, errors.New("role doesn't exist")
 	}
 
 	passwordBytes, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -56,7 +56,7 @@ func (s DefaultUserService) Store(ctx context.Context, username string, password
 	user, err := s.UserRepo.Store(ctx, userToAdd)
 
 	if err != nil {
-		return domain.User{}, err
+		return &domain.User{}, err
 	}
 
 	user.Role = &role
@@ -93,4 +93,28 @@ func (s DefaultUserService) GetLoginJWT(ctx context.Context, username string, pa
 	}
 
 	return s.TokenManager.GenerateJWT(user)
+}
+
+func (s DefaultUserService) GetUserByUUID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
+	defer cancel()
+
+	if id == uuid.Nil {
+		return &domain.User{}, domain.ErrBadParamInput
+	}
+
+	user, err := s.UserRepo.GetByUUID(ctx, id)
+
+	if err != nil {
+		return &domain.User{}, domain.ErrNotFound
+	}
+
+	userRole, err := s.RoleRepo.GetByUUID(ctx, user.RoleId)
+
+	if err != nil {
+		return &domain.User{}, domain.ErrBadParamInput
+	}
+
+	user.Role = &userRole
+	return user, nil
 }
