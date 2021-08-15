@@ -28,7 +28,7 @@ func CreateRolesTable(ctx context.Context, db *sql.DB) error {
 // Creates a new migration
 func NewCreateRolesMigration() migrations.Migration {
 	return migrations.Migration{
-		Name: "create-roles",
+		Name: "create-roles-table",
 		Up:   CreateRolesTable,
 	}
 }

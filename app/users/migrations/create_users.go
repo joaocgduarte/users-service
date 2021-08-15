@@ -35,7 +35,7 @@ func CreateUsersTable(ctx context.Context, db *sql.DB) error {
 // Creates a new migration
 func NewCreateUsersMigration() migrations.Migration {
 	return migrations.Migration{
-		Name: "create-users",
+		Name: "create-users-table",
 		Up:   CreateUsersTable,
 	}
 }

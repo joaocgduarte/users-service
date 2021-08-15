@@ -32,7 +32,7 @@ func CreateRefreshTokensTable(ctx context.Context, db *sql.DB) error {
 // Creates a new migration
 func NewCreateRefreshTokensMigration() migrations.Migration {
 	return migrations.Migration{
-		Name: "create-roles",
+		Name: "create-refresh-tokens-table",
 		Up:   CreateRefreshTokensTable,
 	}
 }
