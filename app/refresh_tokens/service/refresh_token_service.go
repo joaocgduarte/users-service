@@ -14,10 +14,12 @@ type DefaultRefreshTokenService struct {
 	ContextTimeout time.Duration
 }
 
+// New service Instantiation
 func New(tokenRepo domain.RefreshTokenRepository, userRepo domain.UserRepository, contextTimeout time.Duration) domain.RefreshTokenService {
 	return DefaultRefreshTokenService{tokenRepo, userRepo, contextTimeout}
 }
 
+// Gets a specific user that has a RefreshToken
 func (s DefaultRefreshTokenService) GetUserByToken(ctx context.Context, token domain.RefreshToken) (*domain.User, error) {
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()
@@ -69,8 +71,17 @@ func (s DefaultRefreshTokenService) GenerateRefreshToken(ctx context.Context, us
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()
 
+	validUntil := time.Now().Add(time.Hour * 24 * 7)
+
 	if user.RefreshTokenId.Valid {
-		err := s.TokenRepo.Delete(ctx, user.RefreshTokenId.UUID)
+		oldToken, err := s.TokenRepo.GetByUUID(ctx, user.RefreshTokenId.UUID)
+
+		if err != nil {
+			return domain.RefreshToken{}, err
+		}
+
+		validUntil = oldToken.ValidUntil
+		err = s.TokenRepo.Delete(ctx, oldToken.Id)
 
 		if err != nil {
 			return domain.RefreshToken{}, err
@@ -78,7 +89,6 @@ func (s DefaultRefreshTokenService) GenerateRefreshToken(ctx context.Context, us
 	}
 
 	newToken := uuid.New()
-	validUntil := time.Now().Add(time.Hour * 24 * 7)
 
 	refreshToken := domain.RefreshToken{
 		Token:      newToken,
