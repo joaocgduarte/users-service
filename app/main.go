@@ -9,8 +9,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	_posgresConnection "github.com/plagioriginal/user-microservice/database/connection/postgres"
 	"github.com/plagioriginal/user-microservice/database/migrations"
+	"github.com/plagioriginal/user-microservice/domain"
 	"github.com/plagioriginal/user-microservice/helpers"
 	_refreshTokensMigrations "github.com/plagioriginal/user-microservice/refresh_tokens/migrations"
 	_refreshTokensRepo "github.com/plagioriginal/user-microservice/refresh_tokens/repository/postgres"
@@ -21,6 +23,7 @@ import (
 	"github.com/plagioriginal/user-microservice/users/handler"
 	_usersMigrations "github.com/plagioriginal/user-microservice/users/migrations"
 	_usersRepo "github.com/plagioriginal/user-microservice/users/repository/postgres"
+
 	_usersService "github.com/plagioriginal/user-microservice/users/service"
 	"github.com/plagioriginal/user-microservice/users/tokens"
 )
@@ -96,12 +99,23 @@ func main() {
 	// Doing all the actions
 	ctx := context.Background()
 
-	// // Refreshes tokens by ID. Deletes the Refresh token if invalid
-	// oldRefreshToken, _ := uuid.Parse("60adb929-61ad-4ae0-8433-6e2e5373f0f1")
-	// tokens, err := tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
-	// fmt.Println(tokens, err)
+	// refreshToken(tokenManager, ctx, userService)
+	generateTokensFromLogin(userService, tokenManager, ctx)
 
-	// Gets the user by login
+	server := server.New(serverConfigs, logger)
+
+	server.Init()
+}
+
+func refreshToken(tokenManager tokens.TokenManager, ctx context.Context, userService domain.UserService) {
+	//Refreshes tokens by ID. Deletes the Refresh token if invalid
+	oldRefreshToken, _ := uuid.Parse("18c2779d-2319-4bdc-9295-9da3edc9ddee")
+	tokens, err := tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
+	fmt.Println(tokens, err)
+}
+
+func generateTokensFromLogin(userService domain.UserService, tokenManager tokens.TokenManager, ctx context.Context) {
+	//Gets the user by login
 	user, err := userService.GetUserByLogin(ctx, "admin", "password")
 
 	fmt.Println(user, err)
@@ -118,8 +132,4 @@ func main() {
 
 	loggedinUser, _ := userService.GetUserByUUID(ctx, userId)
 	fmt.Println(loggedinUser, "Role of said user: "+loggedinUser.Role.RoleLabel)
-
-	server := server.New(serverConfigs, logger)
-
-	server.Init()
 }
