@@ -18,9 +18,21 @@ func New(tokenRepo domain.RefreshTokenRepository, userRepo domain.UserRepository
 	return DefaultRefreshTokenService{tokenRepo, userRepo, contextTimeout}
 }
 
-// Checks weather the refresh token is Valid. If it is not, it will return an error.
-// Returns the token object from DB if it is valid.
-func (s DefaultRefreshTokenService) IsTokenValid(ctx context.Context, token uuid.UUID) (domain.RefreshToken, error) {
+func (s DefaultRefreshTokenService) GetUserByToken(ctx context.Context, token domain.RefreshToken) (*domain.User, error) {
+	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
+	defer cancel()
+
+	user, err := s.UserRepo.GetUserByRefreshToken(ctx, token.Id)
+
+	if err != nil {
+		return &domain.User{}, err
+	}
+
+	return user, nil
+}
+
+// Gets the refresh token from the repo, based on an uuid token
+func (s DefaultRefreshTokenService) GetTokenFromRepo(ctx context.Context, token uuid.UUID) (domain.RefreshToken, error) {
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()
 
@@ -30,14 +42,29 @@ func (s DefaultRefreshTokenService) IsTokenValid(ctx context.Context, token uuid
 		return domain.RefreshToken{}, err
 	}
 
-	if !refreshToken.ValidUntil.After(time.Now()) {
-		s.TokenRepo.Delete(ctx, refreshToken.Id)
-		return domain.RefreshToken{}, domain.ErrNotFound
-	}
-
 	return refreshToken, nil
 }
 
+// Deletes a token from the DB (basically logout).
+func (s DefaultRefreshTokenService) DeleteToken(ctx context.Context, token domain.RefreshToken) error {
+	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
+	defer cancel()
+
+	err := s.TokenRepo.Delete(ctx, token.Id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Checks weather the refresh token is Valid.
+func (s DefaultRefreshTokenService) IsTokenValid(token domain.RefreshToken) bool {
+	return token.ValidUntil.After(time.Now())
+}
+
+// Generates the refresh tokens
 func (s DefaultRefreshTokenService) GenerateRefreshToken(ctx context.Context, user *domain.User) (domain.RefreshToken, error) {
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()

@@ -21,6 +21,9 @@ type RefreshTokenRepository interface {
 }
 
 type RefreshTokenService interface {
-	IsTokenValid(ctx context.Context, token uuid.UUID) (RefreshToken, error)
+	GetUserByToken(ctx context.Context, token RefreshToken) (*User, error)
+	DeleteToken(ctx context.Context, token RefreshToken) error
+	GetTokenFromRepo(ctx context.Context, token uuid.UUID) (RefreshToken, error)
+	IsTokenValid(token RefreshToken) bool
 	GenerateRefreshToken(ctx context.Context, user *User) (RefreshToken, error)
 }

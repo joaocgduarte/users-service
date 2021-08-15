@@ -16,7 +16,6 @@ type User struct {
 	RoleId         uuid.UUID     `json:"-"`
 	Role           *Role         `json:"role,omitempty"`
 	RefreshTokenId uuid.NullUUID `json:"-"`
-	RefreshToken   string        `json:"-"`
 	CreatedAt      time.Time     `json:"-"`
 	UpdatedAt      time.Time     `json:"-"`
 	DeletedAt      time.Time     `json:"-"`
@@ -27,6 +26,7 @@ type UserRepository interface {
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (*User, error)
 	GetByUsername(ctx context.Context, username string) (*User, error)
 	SaveRefreshToken(ctx context.Context, user *User, token RefreshToken) error
+	GetUserByRefreshToken(ctx context.Context, id uuid.UUID) (*User, error)
 }
 
 type UserService interface {

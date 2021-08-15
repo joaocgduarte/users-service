@@ -90,14 +90,25 @@ func main() {
 
 	// Creating all the services.
 	refreshTokenService := _refreshTokensService.New(refreshTokenRepo, userRepo, timeoutContext)
-	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService)
+	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService, roleRepo)
 	userService := _usersService.New(userRepo, roleRepo, timeoutContext)
 
 	// Doing all the actions
 	ctx := context.Background()
 
+	// // Refreshes tokens by ID. Deletes the Refresh token if invalid
+	// oldRefreshToken, _ := uuid.Parse("60adb929-61ad-4ae0-8433-6e2e5373f0f1")
+	// tokens, err := tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
+	// fmt.Println(tokens, err)
+
 	// Gets the user by login
-	user, _ := userService.GetUserByLogin(ctx, "admin", "password")
+	user, err := userService.GetUserByLogin(ctx, "admin", "password")
+
+	fmt.Println(user, err)
+
+	if err != nil {
+		return
+	}
 
 	// Generates the tokens of said user.
 	token, err := tokenManager.GenerateTokens(ctx, user)

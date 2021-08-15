@@ -2,7 +2,6 @@ package tokens
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -22,11 +21,55 @@ type ClaimsWithRole struct {
 type TokenManager struct {
 	JWTSecret           string
 	RefreshTokenService domain.RefreshTokenService
+	RoleRepo            domain.RoleRepository
 }
 
 // Instantiates a new Token Manager
-func NewTokenManager(jwtSecret string, refreshTokenService domain.RefreshTokenService) TokenManager {
-	return TokenManager{JWTSecret: jwtSecret, RefreshTokenService: refreshTokenService}
+func NewTokenManager(jwtSecret string, refreshTokenService domain.RefreshTokenService, rolesRepo domain.RoleRepository) TokenManager {
+	return TokenManager{
+		JWTSecret:           jwtSecret,
+		RefreshTokenService: refreshTokenService,
+		RoleRepo:            rolesRepo,
+	}
+}
+
+// Refreshes all the tokens, based on an old refresh token.
+// If old token is invalid (out of date) then it will delete it from the DB and return error.
+// If it is valid, it will generate new Access token and Refresh token to be used on next request.
+func (t TokenManager) RefreshAllTokens(ctx context.Context, askedRefreshToken uuid.UUID) (domain.TokenResponse, error) {
+	oldRefreshToken, err := t.RefreshTokenService.GetTokenFromRepo(ctx, askedRefreshToken)
+
+	if err != nil {
+		return domain.TokenResponse{}, err
+	}
+
+	isValid := t.RefreshTokenService.IsTokenValid(oldRefreshToken)
+
+	if !isValid {
+		err := t.RefreshTokenService.DeleteToken(ctx, oldRefreshToken)
+
+		if err != nil {
+			return domain.TokenResponse{}, err
+		}
+
+		return domain.TokenResponse{}, domain.ErrInvalidToken
+	}
+
+	user, err := t.RefreshTokenService.GetUserByToken(ctx, oldRefreshToken)
+
+	if err != nil {
+		return domain.TokenResponse{}, domain.ErrInvalidToken
+	}
+
+	userRole, err := t.RoleRepo.GetByUUID(ctx, user.RoleId)
+
+	if err != nil {
+		return domain.TokenResponse{}, err
+	}
+
+	user.Role = &userRole
+
+	return t.GenerateTokens(ctx, user)
 }
 
 // Gets all the tokens as token response.
@@ -88,7 +131,7 @@ func (t TokenManager) GetUserIDFromToken(token *jwt.Token) (uuid.UUID, error) {
 		return uuid.Parse(claims.StandardClaims.Issuer)
 	}
 
-	return uuid.Nil, errors.New("invalid token")
+	return uuid.Nil, domain.ErrInvalidToken
 }
 
 // Gets the user role from a jwt token
@@ -97,7 +140,7 @@ func (t TokenManager) GetUserRoleFromToken(token *jwt.Token) (string, error) {
 		return claims.UserRoleSlug, nil
 	}
 
-	return "", errors.New("invalid token")
+	return "", domain.ErrInvalidToken
 }
 
 // Checks if a token is valid
