@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
@@ -31,7 +30,7 @@ func (r PostgresRepository) GetByToken(ctx context.Context, token uuid.UUID) (do
 		return domain.RefreshToken{}, err
 	}
 
-	row := stmt.QueryRowContext(ctx, token, time.Now())
+	row := stmt.QueryRowContext(ctx, token)
 
 	result := domain.RefreshToken{}
 
