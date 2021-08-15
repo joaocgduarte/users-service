@@ -15,6 +15,7 @@ type RefreshToken struct {
 }
 
 type RefreshTokenRepository interface {
+	GetByUUID(ctx context.Context, id uuid.UUID) (RefreshToken, error)
 	GetByToken(ctx context.Context, token uuid.UUID) (RefreshToken, error)
 	Store(ctx context.Context, token RefreshToken) (RefreshToken, error)
 	Delete(ctx context.Context, id uuid.UUID) error
