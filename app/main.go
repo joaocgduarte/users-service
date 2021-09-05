@@ -34,6 +34,7 @@ func doMigrations(l *log.Logger, db *sql.DB) {
 		Db:     db,
 		Migrations: []migrations.Migration{
 			// Migrations
+			migrations.NewAddUuidExtensionMigration(),
 			_rolesMigrations.NewCreateRolesMigration(),
 			_usersMigrations.NewCreateUsersMigration(),
 			_refreshTokensMigrations.NewCreateRefreshTokensMigration(),
