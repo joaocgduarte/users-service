@@ -13,7 +13,7 @@ type Role struct {
 	RoleLabel string    `json:"roleLabel"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	DeletedAt time.Time `json:"deletedAt"`
+	DeletedAt time.Time `json:"-"`
 }
 
 type RoleRepository interface {

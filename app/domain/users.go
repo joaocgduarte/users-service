@@ -16,8 +16,8 @@ type User struct {
 	RoleId         uuid.UUID     `json:"-"`
 	Role           *Role         `json:"role,omitempty"`
 	RefreshTokenId uuid.NullUUID `json:"-"`
-	CreatedAt      time.Time     `json:"-"`
-	UpdatedAt      time.Time     `json:"-"`
+	CreatedAt      time.Time     `json:"createdAt"`
+	UpdatedAt      time.Time     `json:"updatedAt"`
 	DeletedAt      time.Time     `json:"-"`
 }
 

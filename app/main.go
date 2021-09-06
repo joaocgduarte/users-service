@@ -98,25 +98,25 @@ func main() {
 	userService := _usersService.New(userRepo, roleRepo, timeoutContext)
 
 	// Doing all the actions
-	ctx := context.Background()
-
-	// refreshToken(tokenManager, ctx, userService)
-	generateTokensFromLogin(userService, tokenManager, ctx)
+	// refreshToken(tokenManager, userService)
+	generateTokensFromLogin(userService, tokenManager)
 
 	server := server.New(serverConfigs, logger)
 
 	server.Init()
 }
 
-func refreshToken(tokenManager tokens.TokenManager, ctx context.Context, userService domain.UserService) {
+func refreshToken(tokenManager tokens.TokenManager, userService domain.UserService) {
+	ctx := context.Background()
 	//Refreshes tokens by ID. Deletes the Refresh token if invalid
 	oldRefreshToken, _ := uuid.Parse("18c2779d-2319-4bdc-9295-9da3edc9ddee")
 	tokens, err := tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
 	fmt.Println(tokens, err)
 }
 
-func generateTokensFromLogin(userService domain.UserService, tokenManager tokens.TokenManager, ctx context.Context) {
+func generateTokensFromLogin(userService domain.UserService, tokenManager tokens.TokenManager) {
 	//Gets the user by login
+	ctx := context.Background()
 	user, err := userService.GetUserByLogin(ctx, "admin", "password")
 
 	fmt.Println(user, err)
@@ -127,9 +127,11 @@ func generateTokensFromLogin(userService domain.UserService, tokenManager tokens
 
 	// Generates the tokens of said user.
 	token, err := tokenManager.GenerateTokens(ctx, user)
+	fmt.Println(token, err)
 
 	newToken, _ := tokenManager.ParseJWT(token.AccessToken)
 	userId, err := tokenManager.GetUserIDFromToken(newToken)
+	fmt.Println(userId, err)
 
 	loggedinUser, _ := userService.GetUserByUUID(ctx, userId)
 	fmt.Println(loggedinUser, "Role of said user: "+loggedinUser.Role.RoleLabel)
