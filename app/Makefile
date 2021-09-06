@@ -1,4 +1,4 @@
 .PHONY: protos
 
 protos:
-	protoc -I=protos --go_out=protos protos/users.proto
+	protoc -I protos/ protos/users.proto --go_out=./protos --go-grpc_out=./protos
