@@ -1,4 +1,4 @@
 .PHONY: protos
 
 protos:
-	protoc -I protos/ protos/users.proto --go_out=./protos --go-grpc_out=./protos
+	protoc ./protos/users.proto --go_out=./protos --go_opt=paths=source_relative --go-grpc_out=./protos --go-grpc_opt=paths=source_relative
