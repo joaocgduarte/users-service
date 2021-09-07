@@ -14,7 +14,8 @@ Simple user management microservice.
 - [x] Refresh the access tokens, if current refresh token is valid.
 - [x] Register a new user with a certain role (needs to have a valid JWT).
 - [ ] CRUD For the users and roles (incomplete right now).
-- [ ] Integrate everything in a gRPC Service. (in progress).
+- [x] Integrate everything in a gRPC Service. (in progress).
+- [ ] Add proper gRPC error handling.
 - [ ] Test everything.
 
 ## Overall project architecture
