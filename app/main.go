@@ -3,26 +3,25 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/google/uuid"
 	_posgresConnection "github.com/plagioriginal/user-microservice/database/connection/postgres"
 	"github.com/plagioriginal/user-microservice/database/migrations"
-	"github.com/plagioriginal/user-microservice/domain"
-	"github.com/plagioriginal/user-microservice/helpers"
+	"github.com/plagioriginal/user-microservice/protos/protos"
 	_refreshTokensMigrations "github.com/plagioriginal/user-microservice/refresh_tokens/migrations"
 	_refreshTokensRepo "github.com/plagioriginal/user-microservice/refresh_tokens/repository/postgres"
 	_refreshTokensService "github.com/plagioriginal/user-microservice/refresh_tokens/service"
 	_rolesMigrations "github.com/plagioriginal/user-microservice/roles/migrations"
 	_rolesRepo "github.com/plagioriginal/user-microservice/roles/repository/postgres"
-	"github.com/plagioriginal/user-microservice/server"
 	"github.com/plagioriginal/user-microservice/users/handler"
 	_usersMigrations "github.com/plagioriginal/user-microservice/users/migrations"
 	_usersRepo "github.com/plagioriginal/user-microservice/users/repository/postgres"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	_usersService "github.com/plagioriginal/user-microservice/users/service"
 	"github.com/plagioriginal/user-microservice/users/tokens"
@@ -63,14 +62,6 @@ func main() {
 	serveMux := http.NewServeMux()
 	serveMux.Handle("/", userHandler)
 
-	serverConfigs := server.ServerConfigs{
-		Mux:          serveMux,
-		Port:         os.Getenv("API_PORT"),
-		IdleTimeout:  helpers.ConvertToInt(os.Getenv("SERVER_IDLE_TIMEOUT"), 120),
-		WriteTimeout: helpers.ConvertToInt(os.Getenv("SERVER_WRITE_TIMEOUT"), 2),
-		ReadTimeout:  helpers.ConvertToInt(os.Getenv("SERVER_READ_TIMEOUT"), 2),
-	}
-
 	db, err := _posgresConnection.Get(_posgresConnection.PostgresConnectionSettings{
 		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
@@ -97,42 +88,24 @@ func main() {
 	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService, roleRepo)
 	userService := _usersService.New(userRepo, roleRepo, timeoutContext)
 
-	// Doing all the actions
-	// refreshToken(tokenManager, userService)
-	generateTokensFromLogin(userService, tokenManager)
+	// @todo: refactor server instantiation.
+	gs := grpc.NewServer()
+	grpcServer := handler.NewUserGRPCHandler(logger, tokenManager, userService)
+	protos.RegisterUsersServer(gs, grpcServer)
 
-	server := server.New(serverConfigs, logger)
-
-	server.Init()
-}
-
-func refreshToken(tokenManager tokens.TokenManager, userService domain.UserService) {
-	ctx := context.Background()
-	//Refreshes tokens by ID. Deletes the Refresh token if invalid
-	oldRefreshToken, _ := uuid.Parse("18c2779d-2319-4bdc-9295-9da3edc9ddee")
-	tokens, err := tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
-	fmt.Println(tokens, err)
-}
-
-func generateTokensFromLogin(userService domain.UserService, tokenManager tokens.TokenManager) {
-	//Gets the user by login
-	ctx := context.Background()
-	user, err := userService.GetUserByLogin(ctx, "admin", "password")
-
-	fmt.Println(user, err)
+	reflection.Register(gs)
+	l, err := net.Listen("tcp", ":"+os.Getenv("API_PORT"))
 
 	if err != nil {
-		return
+		logger.Fatalln("Unable to listen to port")
+		os.Exit(1)
 	}
 
-	// Generates the tokens of said user.
-	token, err := tokenManager.GenerateTokens(ctx, user)
-	fmt.Println(token, err)
+	logger.Println("gRPC Server running at port: " + os.Getenv("API_PORT"))
 
-	newToken, _ := tokenManager.ParseJWT(token.AccessToken)
-	userId, err := tokenManager.GetUserIDFromToken(newToken)
-	fmt.Println(userId, err)
+	err = gs.Serve(l)
 
-	loggedinUser, _ := userService.GetUserByUUID(ctx, userId)
-	fmt.Println(loggedinUser, "Role of said user: "+loggedinUser.Role.RoleLabel)
+	if err != nil {
+		logger.Fatalln(err)
+	}
 }
