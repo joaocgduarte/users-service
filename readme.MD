@@ -7,7 +7,7 @@ Simple user management microservice.
 - Learn about gRPC
 - Be able to use this service along with other microservice (have an API Gateway, a frontend in React, and interact with a To-Dos service.
 
-## Features of this service:
+## To-do:
 
 - [x] Creates the migrations/seeds for the database.
 - [x] Request for login, returning JWT token and Refresh token, that the API Gateway will use.
@@ -15,6 +15,7 @@ Simple user management microservice.
 - [x] Register a new user with a certain role (needs to have a valid JWT).
 - [ ] CRUD For the users and roles (incomplete right now).
 - [ ] Integrate everything in a gRPC Service. (in progress).
+- [ ] Test everything.
 
 ## Overall project architecture
 
