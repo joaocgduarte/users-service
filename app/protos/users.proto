@@ -37,7 +37,8 @@ message UserResponse {
     }
 
     string Id = 1;
-    string FirstName = 2;
-    string LastName = 3;
-    RoleResponse Role = 4;
+    string Username = 2;
+    string FirstName = 3;
+    string LastName = 4;
+    RoleResponse Role = 5;
 }
