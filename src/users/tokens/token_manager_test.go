@@ -1,11 +1,15 @@
 package tokens
 
 import (
+	"context"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
 	"github.com/plagioriginal/user-microservice/domain/mocks"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -95,6 +99,44 @@ func (ts *TokenManagerTestSuite) SetupTest() {
 	ts.roleRepo = new(mocks.RoleRepository)
 }
 
+// Tests the generate refresh token function.
+func (ts *TokenManagerTestSuite) TestGenerateRefreshToken() {
+	ts.Run("invalid user to generate token", func() {
+		ts.refreshTokenService.
+			On("GenerateRefreshToken", mock.Anything, ts.validMockUser).
+			Return(domain.RefreshToken{}, errors.New("any error")).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		token, err := tm.GenerateRefreshToken(context.TODO(), ts.validMockUser)
+
+		ts.Equal(token, uuid.Nil)
+		ts.Error(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+	})
+
+	ts.Run("valid user to generate token", func() {
+		ts.refreshTokenService.
+			On("GenerateRefreshToken", mock.Anything, ts.validMockUser).
+			Return(domain.RefreshToken{
+				Id:         uuid.New(),
+				Token:      uuid.New(),
+				ValidUntil: time.Now().Add(time.Hour * 24 * 7),
+			}, nil).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		token, err := tm.GenerateRefreshToken(context.TODO(), ts.validMockUser)
+
+		ts.NotEqual(token, uuid.Nil)
+		ts.NoError(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+	})
+}
+
+// Tests the ID and role getters for a JWT.
 func (ts *TokenManagerTestSuite) TestGettersFromJWT() {
 	tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
 	tokenString, _ := tm.GenerateJWT(ts.validMockUser)
