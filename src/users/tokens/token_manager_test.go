@@ -99,6 +99,179 @@ func (ts *TokenManagerTestSuite) SetupTest() {
 	ts.roleRepo = new(mocks.RoleRepository)
 }
 
+// Tests the refresh all tokens function.
+func (ts *TokenManagerTestSuite) TestRefreshAllTokens() {
+	oldRefreshToken := uuid.New()
+
+	ts.Run("refresh token doesn't exist", func() {
+		ts.refreshTokenService.
+			On("GetTokenFromRepo", mock.Anything, oldRefreshToken).
+			Return(domain.RefreshToken{}, errors.New("unexpected")).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		tokens, err := tm.RefreshAllTokens(context.TODO(), oldRefreshToken)
+
+		ts.Equal(tokens, domain.TokenResponse{})
+		ts.Error(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+	})
+
+	ts.Run("refresh token exists but is invalid", func() {
+		oldDomainToken := domain.RefreshToken{
+			Id:         uuid.New(),
+			Token:      oldRefreshToken,
+			ValidUntil: time.Now().Add(-time.Hour * 2),
+		}
+
+		ts.refreshTokenService.
+			On("GetTokenFromRepo", mock.Anything, oldRefreshToken).
+			Return(oldDomainToken, nil).
+			Once()
+
+		ts.refreshTokenService.
+			On("IsTokenValid", oldDomainToken).
+			Return(false).
+			Once()
+
+		ts.refreshTokenService.
+			On("DeleteToken", mock.Anything, oldDomainToken).
+			Return(nil).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		tokens, err := tm.RefreshAllTokens(context.TODO(), oldRefreshToken)
+
+		ts.Equal(tokens, domain.TokenResponse{})
+		ts.Error(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+	})
+
+	ts.Run("refresh token exists but there is no user associated with it", func() {
+		oldDomainToken := domain.RefreshToken{
+			Id:         uuid.New(),
+			Token:      oldRefreshToken,
+			ValidUntil: time.Now().Add(time.Hour * 2),
+		}
+
+		ts.refreshTokenService.
+			On("GetTokenFromRepo", mock.Anything, oldRefreshToken).
+			Return(oldDomainToken, nil).
+			Once()
+
+		ts.refreshTokenService.
+			On("IsTokenValid", oldDomainToken).
+			Return(true).
+			Once()
+
+		ts.refreshTokenService.
+			On("GetUserByToken", mock.Anything, oldDomainToken).
+			Return(&domain.User{}, errors.New("unexpected")).
+			Once()
+
+		ts.refreshTokenService.
+			On("DeleteToken", mock.Anything, oldDomainToken).
+			Return(nil).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		tokens, err := tm.RefreshAllTokens(context.TODO(), oldRefreshToken)
+
+		ts.Equal(tokens, domain.TokenResponse{})
+		ts.Error(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+	})
+
+	ts.Run("unexpected error fetching the user role", func() {
+		oldDomainToken := domain.RefreshToken{
+			Id:         uuid.New(),
+			Token:      oldRefreshToken,
+			ValidUntil: time.Now().Add(time.Hour * 2),
+		}
+
+		ts.refreshTokenService.
+			On("GetTokenFromRepo", mock.Anything, oldRefreshToken).
+			Return(oldDomainToken, nil).
+			Once()
+
+		ts.refreshTokenService.
+			On("IsTokenValid", oldDomainToken).
+			Return(true).
+			Once()
+
+		ts.refreshTokenService.
+			On("GetUserByToken", mock.Anything, oldDomainToken).
+			Return(ts.validMockUser, nil).
+			Once()
+
+		ts.roleRepo.
+			On("GetByUUID", mock.Anything, ts.validMockUser.RoleId).
+			Return(domain.Role{}, errors.New("unexpexted")).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		tokens, err := tm.RefreshAllTokens(context.TODO(), oldRefreshToken)
+
+		ts.Equal(tokens, domain.TokenResponse{})
+		ts.Error(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+	})
+
+	ts.Run("success", func() {
+		oldDomainToken := domain.RefreshToken{
+			Id:         uuid.New(),
+			Token:      oldRefreshToken,
+			ValidUntil: time.Now().Add(time.Hour * 2),
+		}
+
+		ts.refreshTokenService.
+			On("GetTokenFromRepo", mock.Anything, oldRefreshToken).
+			Return(oldDomainToken, nil).
+			Once()
+
+		ts.refreshTokenService.
+			On("IsTokenValid", oldDomainToken).
+			Return(true).
+			Once()
+
+		ts.refreshTokenService.
+			On("GetUserByToken", mock.Anything, oldDomainToken).
+			Return(ts.validMockUser, nil).
+			Once()
+
+		ts.roleRepo.
+			On("GetByUUID", mock.Anything, ts.validMockUser.RoleId).
+			Return(domain.Role{
+				ID:        uuid.New(),
+				RoleSlug:  domain.DEFAULT_ROLE_ADMIN.RoleSlug,
+				RoleLabel: domain.DEFAULT_ROLE_ADMIN.RoleLabel,
+			}, nil).
+			Once()
+
+		ts.refreshTokenService.
+			On("GenerateRefreshToken", mock.Anything, ts.validMockUser).
+			Return(domain.RefreshToken{
+				Id:         uuid.New(),
+				Token:      uuid.New(),
+				ValidUntil: time.Now().Add(time.Hour * 24 * 7),
+			}, nil).
+			Once()
+
+		tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+		tokens, err := tm.RefreshAllTokens(context.TODO(), oldRefreshToken)
+
+		ts.NotEqual(tokens, domain.TokenResponse{})
+		ts.NoError(err)
+		ts.refreshTokenService.AssertExpectations(ts.T())
+		ts.roleRepo.AssertExpectations(ts.T())
+	})
+}
+
 // Tests the generate refresh token function.
 func (ts *TokenManagerTestSuite) TestGenerateRefreshToken() {
 	ts.Run("invalid user to generate token", func() {
