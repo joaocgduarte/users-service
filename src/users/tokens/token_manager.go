@@ -105,6 +105,15 @@ func (t TokenManager) GenerateRefreshToken(ctx context.Context, user *domain.Use
 
 // Generates a new JWT token for a given user.
 func (t TokenManager) GenerateJWT(user *domain.User) (string, error) {
+	if len(user.Role.RoleLabel) == 0 ||
+		len(user.Role.RoleSlug) == 0 ||
+		len(user.Username) == 0 ||
+		user.RoleId == uuid.Nil ||
+		user.ID == uuid.Nil {
+
+		return "", domain.ErrBadParamInput
+	}
+
 	claims := ClaimsWithRole{
 		user.Role.RoleSlug,
 		user.Role.RoleLabel,
