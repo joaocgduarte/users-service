@@ -46,18 +46,14 @@ func (t TokenManager) RefreshAllTokens(ctx context.Context, askedRefreshToken uu
 	isValid := t.RefreshTokenService.IsTokenValid(oldRefreshToken)
 
 	if !isValid {
-		err := t.RefreshTokenService.DeleteToken(ctx, oldRefreshToken)
-
-		if err != nil {
-			return domain.TokenResponse{}, err
-		}
-
+		t.RefreshTokenService.DeleteToken(ctx, oldRefreshToken)
 		return domain.TokenResponse{}, domain.ErrInvalidToken
 	}
 
 	user, err := t.RefreshTokenService.GetUserByToken(ctx, oldRefreshToken)
 
 	if err != nil {
+		t.RefreshTokenService.DeleteToken(ctx, oldRefreshToken)
 		return domain.TokenResponse{}, domain.ErrInvalidToken
 	}
 
