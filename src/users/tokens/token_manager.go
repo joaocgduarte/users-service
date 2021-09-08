@@ -161,13 +161,7 @@ func (t TokenManager) IsJWTokenValid(token *jwt.Token) bool {
 func (t TokenManager) ParseJWT(tokenString string) (*jwt.Token, error) {
 	key := []byte(t.JWTSecret)
 
-	token, err := jwt.ParseWithClaims(tokenString, &ClaimsWithRole{}, func(t *jwt.Token) (interface{}, error) {
+	return jwt.ParseWithClaims(tokenString, &ClaimsWithRole{}, func(t *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
-
-	if err != nil {
-		return token, err
-	}
-
-	return token, nil
 }
