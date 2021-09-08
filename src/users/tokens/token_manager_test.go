@@ -95,6 +95,31 @@ func (ts *TokenManagerTestSuite) SetupTest() {
 	ts.roleRepo = new(mocks.RoleRepository)
 }
 
+// Tests the parsing of the JWT tokens
+func (ts *TokenManagerTestSuite) TestParseJWT() {
+	tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
+
+	ts.Run("valid structure jwt", func() {
+		tokenString, _ := tm.GenerateJWT(ts.validMockUser)
+		token, err := tm.ParseJWT(tokenString)
+
+		ts.NoError(err)
+		ts.True(token.Valid)
+
+		validClaims := token.Claims.Valid()
+		ts.NoError(validClaims)
+	})
+
+	ts.Run("invalid signature jwt", func() {
+		tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlTGFiZWwiOiJBZG1pbmlzdHJhdG9yIiwidXNlcm5hbWUiOiJhZG1pbiIsImV4cCI6MTYzMTEzODYyNywiaXNzIjoiYTNiMzI1MDQtYjc4Mi00NDU1LTg3M2YtZGM0OWQzMDdmMjgyIn0.FgFqj8ucoWLaskO1Akba22bJ5Kyaw6krToTr_k52UWc"
+		token, err := tm.ParseJWT(tokenString)
+
+		ts.Error(err)
+		ts.False(token.Valid)
+	})
+}
+
+// Tests the generation of the jwts
 func (ts *TokenManagerTestSuite) TestGenerateJWT() {
 	tm := NewTokenManager(ts.jwtSecret, ts.refreshTokenService, ts.roleRepo)
 
