@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
 )
