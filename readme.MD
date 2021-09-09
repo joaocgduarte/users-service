@@ -18,19 +18,33 @@ Simple user management microservice.
 - [ ] Add proper gRPC error handling.
 - [ ] Test everything.
 
+## Installation
+### Requirements
+1. Have docker and docker-compose installed.
+
+### Process to install
+```
+cd ~/workspace
+git clone git@github.com:plagioriginal/user-api-todos.git
+cd user-api-todos
+cp .env.example .env
+docker-compose up
+```
+You will have available a gRPC service running at http://localhost:8080 (port is editable in the `.env` file).
+
 ## Overall project architecture
 
-#### API Gateway
+### API Gateway
 - REST API (returns in JSON)
 - A client for all the gRPC microservices (reads all the gRPC services).
 - Responsible for the interactions between all the microservices.
 
-#### Users gRPC
+### Users gRPC
 - Manages the users in the architecture
 
-#### To-dos gRPC
+### To-dos gRPC
 - Manages all the to-dos.
 - Maybe will be used for note-taking as well.
 
-#### Frontend
+### Frontend
 - In React, will only call and use data from the API Gateway.
