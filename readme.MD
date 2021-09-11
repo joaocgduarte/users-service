@@ -24,6 +24,7 @@ Simple user management microservice.
 
 ### Process to install
 ```
+docker network create -d bridge todos-infrastructure
 cd ~/workspace
 git clone git@github.com:plagioriginal/user-api-todos.git
 cd user-api-todos
