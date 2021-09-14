@@ -96,6 +96,17 @@ func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *protos.Login
 	result := &protos.TokenResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
+		User: &protos.UserResponse{
+			Id:        user.ID.String(),
+			Username:  user.Username,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role: &protos.UserResponse_RoleResponse{
+				Id:        user.RoleId.String(),
+				RoleLabel: user.Role.RoleLabel,
+				RoleSlug:  user.Role.RoleSlug,
+			},
+		},
 	}
 
 	return result, nil
@@ -114,9 +125,24 @@ func (srv UserGRPCHandler) Refresh(ctx context.Context, in *protos.RefreshReques
 		return nil, err
 	}
 
+	token, _ := srv.tokenManager.ParseJWT(tokens.AccessToken)
+	userId, _ := srv.tokenManager.GetUserIDFromToken(token)
+	user, _ := srv.userService.GetUserByUUID(ctx, userId)
+
 	result := &protos.TokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
+		User: &protos.UserResponse{
+			Id:        user.ID.String(),
+			Username:  user.Username,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role: &protos.UserResponse_RoleResponse{
+				Id:        user.RoleId.String(),
+				RoleLabel: user.Role.RoleLabel,
+				RoleSlug:  user.Role.RoleSlug,
+			},
+		},
 	}
 
 	return result, nil
