@@ -121,3 +121,22 @@ func (srv UserGRPCHandler) Refresh(ctx context.Context, in *protos.RefreshReques
 
 	return result, nil
 }
+
+// Logout handler.
+// Deletes a refresh token from the database
+func (srv UserGRPCHandler) Logout(ctx context.Context, in *protos.RefreshRequest) (*protos.TokenResponse, error) {
+	if len(in.RefreshToken) == 0 {
+		return nil, domain.ErrNotFound
+	}
+
+	isDeleted := srv.tokenManager.DeleteRefreshToken(ctx, in.RefreshToken)
+
+	if !isDeleted {
+		srv.l.Println("Error deleting token: " + in.RefreshToken)
+	}
+
+	return &protos.TokenResponse{
+		AccessToken:  "",
+		RefreshToken: "",
+	}, nil
+}

@@ -33,6 +33,23 @@ func NewTokenManager(jwtSecret string, refreshTokenService domain.RefreshTokenSe
 	}
 }
 
+// Deletes a refresh token.
+func (t TokenManager) DeleteRefreshToken(ctx context.Context, refreshToken string) bool {
+	uuid, err := uuid.Parse(refreshToken)
+
+	if err != nil {
+		return false
+	}
+
+	tokenToDelete, err := t.RefreshTokenService.GetTokenFromRepo(ctx, uuid)
+
+	if err != nil {
+		return false
+	}
+
+	return t.RefreshTokenService.DeleteToken(ctx, tokenToDelete) == nil
+}
+
 // Refreshes all the tokens, based on an old refresh token.
 // If old token is invalid (out of date) then it will delete it from the DB and return error.
 // If it is valid, it will generate new Access token and Refresh token to be used on next request.
