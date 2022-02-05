@@ -3,12 +3,13 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/plagioriginal/user-microservice/database/migrations"
 )
 
 // Creates the roles table
-func CreateRolesTable(ctx context.Context, db *sql.DB) error {
+func CreateRolesTable(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 	query := `CREATE TABLE IF NOT EXISTS roles(
 		id uuid DEFAULT uuid_generate_v4(),
 		role_slug varchar(255) NOT NULL UNIQUE,

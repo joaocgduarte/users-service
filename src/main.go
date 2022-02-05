@@ -80,7 +80,7 @@ func main() {
 	// Creating all the services.
 	refreshTokenService := _refreshTokensService.New(refreshTokenRepo, userRepo, timeoutContext)
 	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService, roleRepo)
-	userService := _usersService.New(userRepo, roleRepo, timeoutContext)
+	userService := _usersService.New(logger, userRepo, roleRepo, timeoutContext)
 
 	// @todo: refactor server instantiation.
 	gs := grpc.NewServer()

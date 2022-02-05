@@ -3,6 +3,7 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/plagioriginal/user-microservice/database/migrations"
 	"github.com/plagioriginal/user-microservice/domain"
@@ -10,7 +11,7 @@ import (
 )
 
 // Adds some default roles.
-func AddDefaultRoles(ctx context.Context, db *sql.DB) error {
+func AddDefaultRoles(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 
 	repo := postgres.New(db)
 
@@ -20,6 +21,7 @@ func AddDefaultRoles(ctx context.Context, db *sql.DB) error {
 	}
 
 	for _, role := range roles {
+		logger.Printf("adding role %v\n", role)
 		repo.Store(ctx, &role)
 	}
 

@@ -3,12 +3,13 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/plagioriginal/user-microservice/database/migrations"
 )
 
 // Creates the refesh tokens table
-func CreateRefreshTokensTable(ctx context.Context, db *sql.DB) error {
+func CreateRefreshTokensTable(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 	query := `
 		CREATE TABLE IF NOT EXISTS refresh_tokens(
 			id uuid DEFAULT uuid_generate_v4() NOT NULL,

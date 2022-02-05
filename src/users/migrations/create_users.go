@@ -3,12 +3,13 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/plagioriginal/user-microservice/database/migrations"
 )
 
 // Creates the users table
-func CreateUsersTable(ctx context.Context, db *sql.DB) error {
+func CreateUsersTable(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 	query := `CREATE TABLE IF NOT EXISTS users (
 		id uuid DEFAULT uuid_generate_v4(),
 		first_name varchar(255) DEFAULT '',

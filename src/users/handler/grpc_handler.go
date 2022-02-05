@@ -55,7 +55,11 @@ func (srv UserGRPCHandler) AddUser(ctx context.Context, in *users.NewUserRequest
 		return nil, domain.ErrBadParamInput
 	}
 
-	user, err := srv.userService.Store(ctx, in.Username, in.Password, in.Role)
+	user, err := srv.userService.Store(ctx, domain.StoreUserRequest{
+		Username: in.GetUsername(),
+		Password: in.GetPassword(),
+		RoleSlug: in.GetRole(),
+	})
 
 	if err != nil {
 		return nil, err
@@ -80,7 +84,10 @@ func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *users.LoginR
 		return nil, domain.ErrNotFound
 	}
 
-	user, err := srv.userService.GetUserByLogin(ctx, loginRequest.Username, loginRequest.Password)
+	user, err := srv.userService.GetUserByLogin(ctx, domain.GetUserRequest{
+		Username: loginRequest.GetUsername(),
+		Password: loginRequest.GetPassword(),
+	})
 
 	if err != nil {
 		return nil, err

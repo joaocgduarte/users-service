@@ -17,7 +17,7 @@ type MigrationsHandler struct {
 func (mh MigrationsHandler) DoAll(ctx context.Context) {
 	for _, migration := range mh.Migrations {
 		mh.Logger.Println("Migrating `" + migration.Name + "`...")
-		err := migration.Up(ctx, mh.Db)
+		err := migration.Up(ctx, mh.Db, mh.Logger)
 
 		if err != nil {
 			mh.Logger.Fatal(err)

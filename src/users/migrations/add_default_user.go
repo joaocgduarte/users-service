@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/plagioriginal/user-microservice/database/migrations"
@@ -14,7 +15,7 @@ import (
 )
 
 // Adds default user to the DB.
-func AddDefaultUser(ctx context.Context, db *sql.DB) error {
+func AddDefaultUser(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 	defaultUserUsername, defaultUserPassword := ctx.Value("defaultUserUsername").(string), ctx.Value("defaultUserPassword").(string)
 
 	if len(defaultUserUsername) == 0 || len(defaultUserPassword) == 0 {
@@ -27,12 +28,17 @@ func AddDefaultUser(ctx context.Context, db *sql.DB) error {
 	adminRoleSlug := domain.DEFAULT_ROLE_ADMIN.RoleSlug
 
 	userService := _usersService.New(
+		logger,
 		userRepo,
 		roleRepo,
 		timeoutDuration,
 	)
 
-	userService.Store(ctx, defaultUserUsername, defaultUserPassword, adminRoleSlug)
+	userService.Store(ctx, domain.StoreUserRequest{
+		Username: defaultUserUsername,
+		Password: defaultUserPassword,
+		RoleSlug: adminRoleSlug,
+	})
 	return nil
 }
 

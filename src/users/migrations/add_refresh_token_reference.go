@@ -3,12 +3,13 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/plagioriginal/user-microservice/database/migrations"
 )
 
 // Creates the users table
-func AddRefreshTokenReference(ctx context.Context, db *sql.DB) error {
+func AddRefreshTokenReference(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 	query := `
 		ALTER TABLE users
 		ADD COLUMN IF NOT EXISTS refresh_token_id uuid DEFAULT NULL REFERENCES refresh_tokens(id) ON DELETE SET NULL ON UPDATE CASCADE

@@ -21,6 +21,17 @@ type User struct {
 	DeletedAt      time.Time     `json:"-"`
 }
 
+type StoreUserRequest struct {
+	Username string
+	Password string
+	RoleSlug string
+}
+
+type GetUserRequest struct {
+	Username string
+	Password string
+}
+
 type UserRepository interface {
 	Store(ctx context.Context, user User) (*User, error)
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (*User, error)
@@ -30,7 +41,7 @@ type UserRepository interface {
 }
 
 type UserService interface {
-	Store(ctx context.Context, username string, password string, roleSlug string) (*User, error)
-	GetUserByLogin(ctx context.Context, username string, password string) (*User, error)
+	Store(ctx context.Context, request StoreUserRequest) (*User, error)
+	GetUserByLogin(ctx context.Context, request GetUserRequest) (*User, error)
 	GetUserByUUID(ctx context.Context, uuid uuid.UUID) (*User, error)
 }
