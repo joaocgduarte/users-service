@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"time"
 
@@ -56,11 +55,6 @@ func doMigrations(l *log.Logger, db *sql.DB) {
 
 func main() {
 	logger := log.New(os.Stdout, "users-auth: ", log.Flags())
-
-	userHandler := handler.NewHttpHandler(logger)
-
-	serveMux := http.NewServeMux()
-	serveMux.Handle("/", userHandler)
 
 	db, err := _posgresConnection.Get(_posgresConnection.PostgresConnectionSettings{
 		User:     os.Getenv("DB_USER"),
