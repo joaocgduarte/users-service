@@ -11,7 +11,6 @@ import (
 
 	_posgresConnection "github.com/plagioriginal/user-microservice/database/connection/postgres"
 	"github.com/plagioriginal/user-microservice/database/migrations"
-	"github.com/plagioriginal/user-microservice/protos/protos"
 	_refreshTokensMigrations "github.com/plagioriginal/user-microservice/refresh_tokens/migrations"
 	_refreshTokensRepo "github.com/plagioriginal/user-microservice/refresh_tokens/repository/postgres"
 	_refreshTokensService "github.com/plagioriginal/user-microservice/refresh_tokens/service"
@@ -20,6 +19,7 @@ import (
 	"github.com/plagioriginal/user-microservice/users/handler"
 	_usersMigrations "github.com/plagioriginal/user-microservice/users/migrations"
 	_usersRepo "github.com/plagioriginal/user-microservice/users/repository/postgres"
+	users "github.com/plagioriginal/users-service-grpc/users"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -91,7 +91,7 @@ func main() {
 	// @todo: refactor server instantiation.
 	gs := grpc.NewServer()
 	grpcServer := handler.NewUserGRPCHandler(logger, tokenManager, userService)
-	protos.RegisterUsersServer(gs, grpcServer)
+	users.RegisterUsersServer(gs, grpcServer)
 
 	reflection.Register(gs)
 	l, err := net.Listen("tcp", ":"+os.Getenv("API_PORT"))

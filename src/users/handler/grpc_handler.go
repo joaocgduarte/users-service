@@ -6,12 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
-	"github.com/plagioriginal/user-microservice/protos/protos"
 	"github.com/plagioriginal/user-microservice/users/tokens"
+	users "github.com/plagioriginal/users-service-grpc/users"
 )
 
 type UserGRPCHandler struct {
-	protos.UnimplementedUsersServer
+	users.UnimplementedUsersServer
 	l            *log.Logger
 	tokenManager tokens.TokenManager
 	userService  domain.UserService
@@ -21,7 +21,7 @@ func NewUserGRPCHandler(
 	l *log.Logger,
 	tokenManager tokens.TokenManager,
 	userService domain.UserService,
-) protos.UsersServer {
+) users.UsersServer {
 	return UserGRPCHandler{
 		l:            l,
 		tokenManager: tokenManager,
@@ -30,7 +30,7 @@ func NewUserGRPCHandler(
 }
 
 // Adds a new user.
-func (srv UserGRPCHandler) AddUser(ctx context.Context, in *protos.NewUserRequest) (*protos.UserResponse, error) {
+func (srv UserGRPCHandler) AddUser(ctx context.Context, in *users.NewUserRequest) (*users.UserResponse, error) {
 	if len(in.AccessToken) == 0 {
 		return nil, domain.ErrInvalidToken
 	}
@@ -61,12 +61,12 @@ func (srv UserGRPCHandler) AddUser(ctx context.Context, in *protos.NewUserReques
 		return nil, err
 	}
 
-	return &protos.UserResponse{
+	return &users.UserResponse{
 		Id:        user.ID.String(),
 		Username:  user.Username,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
-		Role: &protos.UserResponse_RoleResponse{
+		Role: &users.UserResponse_RoleResponse{
 			Id:        user.RoleId.String(),
 			RoleLabel: user.Role.RoleLabel,
 			RoleSlug:  user.Role.RoleSlug,
@@ -75,7 +75,7 @@ func (srv UserGRPCHandler) AddUser(ctx context.Context, in *protos.NewUserReques
 }
 
 // Gets the tokens for the login
-func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *protos.LoginRequest) (*protos.TokenResponse, error) {
+func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *users.LoginRequest) (*users.TokenResponse, error) {
 	if len(loginRequest.Username) == 0 || len(loginRequest.Password) == 0 {
 		return nil, domain.ErrNotFound
 	}
@@ -93,15 +93,15 @@ func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *protos.Login
 		return nil, err
 	}
 
-	result := &protos.TokenResponse{
+	result := &users.TokenResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-		User: &protos.UserResponse{
+		User: &users.UserResponse{
 			Id:        user.ID.String(),
 			Username:  user.Username,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
-			Role: &protos.UserResponse_RoleResponse{
+			Role: &users.UserResponse_RoleResponse{
 				Id:        user.RoleId.String(),
 				RoleLabel: user.Role.RoleLabel,
 				RoleSlug:  user.Role.RoleSlug,
@@ -113,7 +113,7 @@ func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *protos.Login
 }
 
 // Refreshes the tokens.
-func (srv UserGRPCHandler) Refresh(ctx context.Context, in *protos.RefreshRequest) (*protos.TokenResponse, error) {
+func (srv UserGRPCHandler) Refresh(ctx context.Context, in *users.RefreshRequest) (*users.TokenResponse, error) {
 	if len(in.RefreshToken) == 0 {
 		return nil, domain.ErrNotFound
 	}
@@ -129,15 +129,15 @@ func (srv UserGRPCHandler) Refresh(ctx context.Context, in *protos.RefreshReques
 	userId, _ := srv.tokenManager.GetUserIDFromToken(token)
 	user, _ := srv.userService.GetUserByUUID(ctx, userId)
 
-	result := &protos.TokenResponse{
+	result := &users.TokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
-		User: &protos.UserResponse{
+		User: &users.UserResponse{
 			Id:        user.ID.String(),
 			Username:  user.Username,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
-			Role: &protos.UserResponse_RoleResponse{
+			Role: &users.UserResponse_RoleResponse{
 				Id:        user.RoleId.String(),
 				RoleLabel: user.Role.RoleLabel,
 				RoleSlug:  user.Role.RoleSlug,
@@ -150,7 +150,7 @@ func (srv UserGRPCHandler) Refresh(ctx context.Context, in *protos.RefreshReques
 
 // Logout handler.
 // Deletes a refresh token from the database
-func (srv UserGRPCHandler) Logout(ctx context.Context, in *protos.RefreshRequest) (*protos.TokenResponse, error) {
+func (srv UserGRPCHandler) Logout(ctx context.Context, in *users.RefreshRequest) (*users.TokenResponse, error) {
 	if len(in.RefreshToken) == 0 {
 		return nil, domain.ErrNotFound
 	}
@@ -161,7 +161,7 @@ func (srv UserGRPCHandler) Logout(ctx context.Context, in *protos.RefreshRequest
 		srv.l.Println("Error deleting token: " + in.RefreshToken)
 	}
 
-	return &protos.TokenResponse{
+	return &users.TokenResponse{
 		AccessToken:  "",
 		RefreshToken: "",
 	}, nil
