@@ -24,7 +24,7 @@ func (s DefaultRefreshTokenService) GetUserByToken(ctx context.Context, token do
 	_, cancel := context.WithTimeout(ctx, s.ContextTimeout)
 	defer cancel()
 
-	user, err := s.UserRepo.GetUserByRefreshToken(ctx, token.Id)
+	user, err := s.UserRepo.GetByRefreshToken(ctx, token.Id)
 
 	if err != nil {
 		return &domain.User{}, err

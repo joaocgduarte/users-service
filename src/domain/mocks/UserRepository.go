@@ -62,8 +62,8 @@ func (_m *UserRepository) GetByUsername(ctx context.Context, username string) (*
 	return r0, r1
 }
 
-// GetUserByRefreshToken provides a mock function with given fields: ctx, id
-func (_m *UserRepository) GetUserByRefreshToken(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+// GetByRefreshToken provides a mock function with given fields: ctx, id
+func (_m *UserRepository) GetByRefreshToken(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	ret := _m.Called(ctx, id)
 
 	var r0 *domain.User

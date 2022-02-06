@@ -37,7 +37,7 @@ type UserRepository interface {
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (*User, error)
 	GetByUsername(ctx context.Context, username string) (*User, error)
 	SaveRefreshToken(ctx context.Context, user *User, token RefreshToken) error
-	GetUserByRefreshToken(ctx context.Context, id uuid.UUID) (*User, error)
+	GetByRefreshToken(ctx context.Context, id uuid.UUID) (*User, error)
 }
 
 type UserService interface {

@@ -67,6 +67,8 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	defer db.Close()
+
 	doMigrations(logger, db)
 
 	timeoutContext := time.Duration(2) * time.Second

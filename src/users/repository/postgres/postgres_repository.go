@@ -3,9 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
 )
 
@@ -36,7 +34,7 @@ func (r PostgresRepository) scanUserRow(row *sql.Row) (*domain.User, error) {
 	)
 
 	if err != nil {
-		return &domain.User{}, err
+		return nil, err
 	}
 
 	return &result, nil
@@ -45,115 +43,4 @@ func (r PostgresRepository) scanUserRow(row *sql.Row) (*domain.User, error) {
 // Lists the users in the DB in a paginated matter.
 func (r PostgresRepository) List(ctx context.Context, page int, perPage int) ([]domain.User, error) {
 	panic("to be implemented")
-}
-
-// Stores a new user into the DB
-func (r PostgresRepository) Store(ctx context.Context, user domain.User) (*domain.User, error) {
-	if user.ID == uuid.Nil {
-		user.ID = uuid.New()
-	}
-
-	query := `INSERT INTO users(id, first_name, last_name, username, password, role_id, created_at, updated_at) 
-			VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-			RETURNING id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at`
-
-	statement, err := r.Db.PrepareContext(ctx, query)
-
-	if err != nil {
-		return &domain.User{}, err
-	}
-
-	row := statement.
-		QueryRowContext(ctx,
-			user.ID,
-			user.FirstName,
-			user.LastName,
-			user.Username,
-			user.Password,
-			user.RoleId,
-			time.Now(),
-			time.Now(),
-		)
-
-	return r.scanUserRow(row)
-}
-
-// Gets a user by uuid
-func (r PostgresRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*domain.User, error) {
-	query := `
-		SELECT id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at
-		FROM users 
-		WHERE id = $1  AND deleted_at IS NULL
-		LIMIT 1
-	`
-
-	statement, err := r.Db.PrepareContext(ctx, query)
-
-	if err != nil {
-		return &domain.User{}, err
-	}
-
-	row := statement.QueryRowContext(ctx, uuid)
-	return r.scanUserRow(row)
-}
-
-// Gets a user by their respective username.
-func (r PostgresRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
-	query := `
-		SELECT id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at
-		FROM users 
-		WHERE username = $1 AND deleted_at IS NULL
-		LIMIT 1
-	`
-
-	statement, err := r.Db.PrepareContext(ctx, query)
-
-	if err != nil {
-		return &domain.User{}, err
-	}
-
-	row := statement.QueryRowContext(ctx, username)
-	return r.scanUserRow(row)
-}
-
-// Saves a refresh token into the columns that has that link
-func (r PostgresRepository) SaveRefreshToken(ctx context.Context, user *domain.User, token domain.RefreshToken) error {
-	query := `
-		UPDATE users
-		SET refresh_token_id = $1
-		WHERE id = $2
-	`
-
-	stmt, err := r.Db.PrepareContext(ctx, query)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.ExecContext(ctx, token.Id, user.ID)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Gets a user by the refresh token id
-func (r PostgresRepository) GetUserByRefreshToken(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	query := `
-		SELECT id, first_name, last_name, username, password, role_id, refresh_token_id, created_at, updated_at
-		FROM users 
-		WHERE refresh_token_id = $1 AND deleted_at IS NULL
-		LIMIT 1
-	`
-
-	statement, err := r.Db.PrepareContext(ctx, query)
-
-	if err != nil {
-		return &domain.User{}, err
-	}
-
-	row := statement.QueryRowContext(ctx, id)
-	return r.scanUserRow(row)
 }
