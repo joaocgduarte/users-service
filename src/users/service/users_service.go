@@ -45,7 +45,11 @@ func (s DefaultUserService) Store(ctx context.Context, request domain.StoreUserR
 		return nil, errors.New("error fetching role")
 	}
 
-	passwordBytes, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+	if err != nil {
+		s.Logger.Println("error encrypting password: " + err.Error())
+		return nil, errors.New("error encrypting password")
+	}
 	password := string(passwordBytes[:])
 
 	userToAdd := domain.User{
@@ -75,26 +79,23 @@ func (s DefaultUserService) GetUserByLogin(ctx context.Context, request domain.G
 	}
 
 	user, err := s.UserRepo.GetByUsername(ctx, request.Username)
-
 	if err != nil || user.ID == uuid.Nil {
 		s.Logger.Println("error getting user by username: " + err.Error())
 		return nil, domain.ErrNotFound
 	}
 
 	userRole, err := s.RoleRepo.GetByUUID(ctx, user.RoleId)
-
 	if err != nil {
+		s.Logger.Println("error fetching role of user: " + err.Error())
 		return nil, domain.ErrNotFound
 	}
 
 	user.Role = &userRole
-
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
 
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}
-
 	return user, nil
 }
 
@@ -107,17 +108,14 @@ func (s DefaultUserService) GetUserByUUID(ctx context.Context, id uuid.UUID) (*d
 	}
 
 	user, err := s.UserRepo.GetByUUID(ctx, id)
-
 	if err != nil {
 		return nil, domain.ErrNotFound
 	}
 
 	userRole, err := s.RoleRepo.GetByUUID(ctx, user.RoleId)
-
 	if err != nil {
-		return nil, domain.ErrBadParamInput
+		return nil, domain.ErrNotFound
 	}
-
 	user.Role = &userRole
 	return user, nil
 }
