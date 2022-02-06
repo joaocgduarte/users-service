@@ -41,6 +41,7 @@ func Test_Store_FailIfInvalidRole(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error fetching role")
+	roleRepo.AssertExpectations(t)
 }
 
 func Test_Store_FailIfErrorStoringUser(t *testing.T) {
@@ -65,6 +66,8 @@ func Test_Store_FailIfErrorStoringUser(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error storing user")
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
 
 func Test_Store_Success(t *testing.T) {
@@ -99,6 +102,8 @@ func Test_Store_Success(t *testing.T) {
 		Role:     &role,
 	})
 	assert.Nil(t, err)
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserByLogin_FailIfInvalidInput(t *testing.T) {
@@ -136,6 +141,7 @@ func Test_GetUserByLogin_FailIfGetByUsernameError(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "resource not found")
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserByLogin_FailIfRoleFetchingError(t *testing.T) {
@@ -157,6 +163,8 @@ func Test_GetUserByLogin_FailIfRoleFetchingError(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "resource not found")
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserByLogin_FailIfPasswordsDontMatchError(t *testing.T) {
@@ -180,6 +188,8 @@ func Test_GetUserByLogin_FailIfPasswordsDontMatchError(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "resource not found")
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserByLogin_Success(t *testing.T) {
@@ -212,6 +222,8 @@ func Test_GetUserByLogin_Success(t *testing.T) {
 		Role:     &role,
 	})
 	assert.Nil(t, err)
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserUUID_FailIfGetByUsernameError(t *testing.T) {
@@ -225,6 +237,7 @@ func Test_GetUserUUID_FailIfGetByUsernameError(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "resource not found")
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserUUID_FailIfRoleFetchingError(t *testing.T) {
@@ -247,6 +260,8 @@ func Test_GetUserUUID_FailIfRoleFetchingError(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "resource not found")
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
 
 func Test_GetUserUUID_Success(t *testing.T) {
@@ -273,4 +288,6 @@ func Test_GetUserUUID_Success(t *testing.T) {
 		Role:   &role,
 	})
 	assert.Nil(t, err)
+	roleRepo.AssertExpectations(t)
+	userRepo.AssertExpectations(t)
 }
