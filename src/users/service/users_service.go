@@ -39,7 +39,6 @@ func (s DefaultUserService) Store(ctx context.Context, request domain.StoreUserR
 	defer cancel()
 
 	role, err := s.RoleRepo.GetBySlug(ctx, request.RoleSlug)
-
 	if err != nil {
 		s.Logger.Println("error fetching role: " + err.Error())
 		return nil, errors.New("error fetching role")
@@ -109,11 +108,13 @@ func (s DefaultUserService) GetUserByUUID(ctx context.Context, id uuid.UUID) (*d
 
 	user, err := s.UserRepo.GetByUUID(ctx, id)
 	if err != nil {
+		s.Logger.Println("error fetching user by uuid: " + err.Error())
 		return nil, domain.ErrNotFound
 	}
 
 	userRole, err := s.RoleRepo.GetByUUID(ctx, user.RoleId)
 	if err != nil {
+		s.Logger.Println("error fetching role by uuid: " + err.Error())
 		return nil, domain.ErrNotFound
 	}
 	user.Role = &userRole
