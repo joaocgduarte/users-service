@@ -46,11 +46,11 @@ func Test_GetByUsername_TimeoutReached(t *testing.T) {
 	mock.ExpectPrepare(regexp.QuoteMeta(query)).
 		ExpectQuery().
 		WithArgs("admin").
-		WillDelayFor(time.Duration(3 * time.Second)).
+		WillDelayFor(time.Duration(200 * time.Millisecond)).
 		WillReturnError(errors.New("result doesnt matter because we are testing timeout"))
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}
@@ -84,7 +84,7 @@ func Test_GetByUsername_Success(t *testing.T) {
 		WillReturnRows(expectedResult)
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}

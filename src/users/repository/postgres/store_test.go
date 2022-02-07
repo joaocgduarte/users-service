@@ -80,7 +80,7 @@ func Test_Store_TimeoutReached(t *testing.T) {
 		WillReturnError(errors.New("result doesnt matter because we are testing timeout"))
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}
@@ -127,7 +127,7 @@ func Test_Store_Success(t *testing.T) {
 		WillReturnRows(expectedResult)
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}

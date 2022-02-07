@@ -56,11 +56,11 @@ func Test_SaveRefreshToken_TimeoutReached(t *testing.T) {
 	mock.ExpectPrepare(regexp.QuoteMeta(query)).
 		ExpectExec().
 		WithArgs(token.Id, user.ID).
-		WillDelayFor(time.Duration(3 * time.Second)).
+		WillDelayFor(time.Duration(200 * time.Millisecond)).
 		WillReturnError(errors.New("result doesnt matter because we are testing timeout"))
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}
@@ -91,7 +91,7 @@ func Test_SaveRefreshToken_ExecFails(t *testing.T) {
 		WillReturnError(errors.New("boom"))
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}
@@ -123,7 +123,7 @@ func Test_SaveRefreshToken_Success(t *testing.T) {
 		WillReturnError(nil)
 
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(2*time.Second))
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(100*time.Millisecond))
 	defer cancel()
 
 	repo := PostgresRepository{db}
