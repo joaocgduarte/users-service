@@ -41,14 +41,27 @@ func AddDefaultUser(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 		timeoutDuration,
 	)
 
+	user, err := userService.GetUserByLogin(ctx, domain.GetUserRequest{
+		Username: defaultUserUsername,
+		Password: defaultUserPassword,
+	})
+
+	if err != nil {
+		logger.Printf("error checking if user exists add-default-user migration: %v", err)
+		return err
+	}
+	if user != nil {
+		logger.Println("user already exists, skipping add-default-user migration")
+		return nil
+	}
+
 	req := domain.StoreUserRequest{
 		Username: defaultUserUsername,
 		Password: defaultUserPassword,
 		RoleSlug: adminRoleSlug,
 	}
-
 	if _, err := userService.Store(ctx, req); err != nil {
-		logger.Printf("error storing user on add-default-user migration: %v", req)
+		logger.Printf("error storing user on add-default-user migration: %v", err)
 		return err
 	}
 	return nil

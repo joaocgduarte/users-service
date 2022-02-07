@@ -98,10 +98,7 @@ func main() {
 	}
 
 	logger.Println("gRPC Server running at port: " + os.Getenv("API_PORT"))
-
-	err = gs.Serve(l)
-
-	if err != nil {
+	if err = gs.Serve(l); err != nil {
 		logger.Fatalln(err)
 	}
 }

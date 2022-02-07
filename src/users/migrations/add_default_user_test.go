@@ -33,5 +33,4 @@ func TestAddDefaultUserMigration_QueryError(t *testing.T) {
 
 	err = migration.Up(ctx, db, log.New(ioutil.Discard, "tests: ", log.Flags()))
 	assert.Error(t, err)
-	assert.Equal(t, err.Error(), "error fetching role")
 }
