@@ -45,8 +45,8 @@ func doMigrations(l *log.Logger, db *sql.DB) {
 	}
 
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-	ctx = context.WithValue(ctx, "defaultUserUsername", os.Getenv("DEFAULT_USER_USERNAME"))
-	ctx = context.WithValue(ctx, "defaultUserPassword", os.Getenv("DEFAULT_USER_PASSWORD"))
+	ctx = context.WithValue(ctx, _usersMigrations.DefaultUserNameKey, os.Getenv("DEFAULT_USER_USERNAME"))
+	ctx = context.WithValue(ctx, _usersMigrations.DefaultUserPasswordKey, os.Getenv("DEFAULT_USER_PASSWORD"))
 	ctx = context.WithValue(ctx, "jwtSecret", os.Getenv("JWT_GENERATOR_SECRET"))
 
 	defer cancelfunc()
