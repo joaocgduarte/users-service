@@ -16,13 +16,13 @@ type UserService struct {
 	mock.Mock
 }
 
-// GetUserByLogin provides a mock function with given fields: ctx, username, password
-func (_m *UserService) GetUserByLogin(ctx context.Context, username string, password string) (*domain.User, error) {
-	ret := _m.Called(ctx, username, password)
+// GetUserByLogin provides a mock function with given fields: ctx, request
+func (_m *UserService) GetUserByLogin(ctx context.Context, request domain.GetUserRequest) (*domain.User, error) {
+	ret := _m.Called(ctx, request)
 
 	var r0 *domain.User
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *domain.User); ok {
-		r0 = rf(ctx, username, password)
+	if rf, ok := ret.Get(0).(func(context.Context, domain.GetUserRequest) *domain.User); ok {
+		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.User)
@@ -30,8 +30,8 @@ func (_m *UserService) GetUserByLogin(ctx context.Context, username string, pass
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = rf(ctx, username, password)
+	if rf, ok := ret.Get(1).(func(context.Context, domain.GetUserRequest) error); ok {
+		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -62,13 +62,13 @@ func (_m *UserService) GetUserByUUID(ctx context.Context, _a1 uuid.UUID) (*domai
 	return r0, r1
 }
 
-// Store provides a mock function with given fields: ctx, username, password, roleSlug
-func (_m *UserService) Store(ctx context.Context, username string, password string, roleSlug string) (*domain.User, error) {
-	ret := _m.Called(ctx, username, password, roleSlug)
+// Store provides a mock function with given fields: ctx, request
+func (_m *UserService) Store(ctx context.Context, request domain.StoreUserRequest) (*domain.User, error) {
+	ret := _m.Called(ctx, request)
 
 	var r0 *domain.User
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *domain.User); ok {
-		r0 = rf(ctx, username, password, roleSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, domain.StoreUserRequest) *domain.User); ok {
+		r0 = rf(ctx, request)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.User)
@@ -76,8 +76,8 @@ func (_m *UserService) Store(ctx context.Context, username string, password stri
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
-		r1 = rf(ctx, username, password, roleSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, domain.StoreUserRequest) error); ok {
+		r1 = rf(ctx, request)
 	} else {
 		r1 = ret.Error(1)
 	}

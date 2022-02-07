@@ -16,6 +16,29 @@ type UserRepository struct {
 	mock.Mock
 }
 
+// GetByRefreshToken provides a mock function with given fields: ctx, id
+func (_m *UserRepository) GetByRefreshToken(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	ret := _m.Called(ctx, id)
+
+	var r0 *domain.User
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *domain.User); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetByUUID provides a mock function with given fields: ctx, _a1
 func (_m *UserRepository) GetByUUID(ctx context.Context, _a1 uuid.UUID) (*domain.User, error) {
 	ret := _m.Called(ctx, _a1)
@@ -55,29 +78,6 @@ func (_m *UserRepository) GetByUsername(ctx context.Context, username string) (*
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, username)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetByRefreshToken provides a mock function with given fields: ctx, id
-func (_m *UserRepository) GetByRefreshToken(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	ret := _m.Called(ctx, id)
-
-	var r0 *domain.User
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *domain.User); ok {
-		r0 = rf(ctx, id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.User)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

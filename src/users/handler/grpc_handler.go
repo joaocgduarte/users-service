@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
-	"github.com/plagioriginal/user-microservice/users/tokens"
 	users "github.com/plagioriginal/users-service-grpc/users"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,13 +14,13 @@ import (
 type UserGRPCHandler struct {
 	users.UnimplementedUsersServer
 	l            *log.Logger
-	tokenManager tokens.TokenManager
+	tokenManager domain.AccessTokenHandler
 	userService  domain.UserService
 }
 
 func NewUserGRPCHandler(
 	l *log.Logger,
-	tokenManager tokens.TokenManager,
+	tokenManager domain.AccessTokenHandler,
 	userService domain.UserService,
 ) users.UsersServer {
 	return UserGRPCHandler{
