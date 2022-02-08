@@ -26,14 +26,11 @@ func (s DefaultUserService) Store(ctx context.Context, request domain.StoreUserR
 	}
 	password := string(passwordBytes[:])
 
-	userToAdd := domain.User{
+	user, err := s.UserRepo.Store(ctx, domain.User{
 		Username: request.Username,
 		Password: password,
 		RoleId:   role.ID,
-	}
-
-	user, err := s.UserRepo.Store(ctx, userToAdd)
-
+	})
 	if err != nil {
 		s.Logger.Println("error storing user: " + err.Error())
 		return nil, errors.New("error storing user")

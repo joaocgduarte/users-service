@@ -82,18 +82,18 @@ func (_m *RoleRepository) GetByUUID(ctx context.Context, _a1 uuid.UUID) (domain.
 }
 
 // Store provides a mock function with given fields: ctx, role
-func (_m *RoleRepository) Store(ctx context.Context, role *domain.Role) (domain.Role, error) {
+func (_m *RoleRepository) Store(ctx context.Context, role domain.Role) (domain.Role, error) {
 	ret := _m.Called(ctx, role)
 
 	var r0 domain.Role
-	if rf, ok := ret.Get(0).(func(context.Context, *domain.Role) domain.Role); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, domain.Role) domain.Role); ok {
 		r0 = rf(ctx, role)
 	} else {
 		r0 = ret.Get(0).(domain.Role)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *domain.Role) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, domain.Role) error); ok {
 		r1 = rf(ctx, role)
 	} else {
 		r1 = ret.Error(1)

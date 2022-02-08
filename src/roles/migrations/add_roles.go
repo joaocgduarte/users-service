@@ -22,7 +22,7 @@ func AddDefaultRoles(ctx context.Context, db *sql.DB, logger *log.Logger) error 
 
 	for _, role := range roles {
 		logger.Printf("adding role %v\n", role)
-		repo.Store(ctx, &role)
+		repo.Store(ctx, role)
 	}
 
 	return nil

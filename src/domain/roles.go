@@ -18,7 +18,7 @@ type Role struct {
 
 type RoleRepository interface {
 	Fetch(ctx context.Context) ([]Role, error)
-	Store(ctx context.Context, role *Role) (Role, error)
+	Store(ctx context.Context, role Role) (Role, error)
 	GetBySlug(ctx context.Context, slug string) (Role, error)
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (Role, error)
 }
