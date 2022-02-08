@@ -55,31 +55,26 @@ func (t TokenManager) DeleteRefreshToken(ctx context.Context, refreshToken strin
 // If it is valid, it will generate new Access token and Refresh token to be used on next request.
 func (t TokenManager) RefreshAllTokens(ctx context.Context, askedRefreshToken uuid.UUID) (domain.TokenResponse, error) {
 	oldRefreshToken, err := t.RefreshTokenService.GetTokenFromRepo(ctx, askedRefreshToken)
-
 	if err != nil {
 		return domain.TokenResponse{}, err
 	}
 
 	isValid := t.RefreshTokenService.IsTokenValid(oldRefreshToken)
-
 	if !isValid {
 		t.RefreshTokenService.DeleteToken(ctx, oldRefreshToken)
 		return domain.TokenResponse{}, domain.ErrInvalidToken
 	}
 
 	user, err := t.RefreshTokenService.GetUserByToken(ctx, oldRefreshToken)
-
 	if err != nil {
 		t.RefreshTokenService.DeleteToken(ctx, oldRefreshToken)
 		return domain.TokenResponse{}, domain.ErrInvalidToken
 	}
 
 	userRole, err := t.RoleRepo.GetByUUID(ctx, user.RoleId)
-
 	if err != nil {
 		return domain.TokenResponse{}, err
 	}
-
 	user.Role = &userRole
 
 	return t.GenerateTokens(ctx, user)
@@ -88,13 +83,11 @@ func (t TokenManager) RefreshAllTokens(ctx context.Context, askedRefreshToken uu
 // Gets all the tokens as token response.
 func (t TokenManager) GenerateTokens(ctx context.Context, user *domain.User) (domain.TokenResponse, error) {
 	jwtToken, err := t.GenerateJWT(user)
-
 	if err != nil {
 		return domain.TokenResponse{}, err
 	}
 
 	refreshToken, err := t.GenerateRefreshToken(ctx, user)
-
 	if err != nil {
 		return domain.TokenResponse{}, err
 	}
@@ -108,11 +101,9 @@ func (t TokenManager) GenerateTokens(ctx context.Context, user *domain.User) (do
 // Gets the regresh token
 func (t TokenManager) GenerateRefreshToken(ctx context.Context, user *domain.User) (uuid.UUID, error) {
 	refreshToken, err := t.RefreshTokenService.GenerateRefreshToken(ctx, user)
-
 	if err != nil {
 		return uuid.Nil, err
 	}
-
 	return refreshToken.Token, nil
 }
 
@@ -144,7 +135,6 @@ func (t TokenManager) GenerateJWT(user *domain.User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return signedString, nil
 }
 
@@ -153,7 +143,6 @@ func (t TokenManager) GetUserIDFromToken(token *jwt.Token) (uuid.UUID, error) {
 	if claims, ok := token.Claims.(*ClaimsWithRole); ok && t.IsJWTokenValid(token) {
 		return uuid.Parse(claims.StandardClaims.Issuer)
 	}
-
 	return uuid.Nil, domain.ErrInvalidToken
 }
 

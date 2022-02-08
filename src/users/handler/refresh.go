@@ -11,23 +11,41 @@ import (
 
 // Refreshes the tokens.
 func (srv UserGRPCHandler) Refresh(ctx context.Context, in *users.RefreshRequest) (*users.TokenResponse, error) {
-	if len(in.RefreshToken) == 0 {
+	if in == nil || len(in.RefreshToken) == 0 {
 		return nil, status.Error(codes.NotFound, "resource found")
 	}
 
-	oldRefreshToken, _ := uuid.Parse(in.RefreshToken)
-	tokens, err := srv.tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
+	oldRefreshToken, err := uuid.Parse(in.RefreshToken)
+	if err != nil {
+		srv.l.Printf("error parsing token on refresh handler: %v\n", err)
+		return nil, status.Error(codes.InvalidArgument, "invalid token")
+	}
 
+	tokens, err := srv.tokenManager.RefreshAllTokens(ctx, oldRefreshToken)
 	if err != nil {
 		srv.l.Printf("error generating tokens on refresh: %v\n", err)
 		return nil, status.Error(codes.Unknown, "error generating tokens")
 	}
 
-	token, _ := srv.tokenManager.ParseJWT(tokens.AccessToken)
-	userId, _ := srv.tokenManager.GetUserIDFromToken(token)
-	user, _ := srv.userService.GetUserByUUID(ctx, userId)
+	token, err := srv.tokenManager.ParseJWT(tokens.AccessToken)
+	if err != nil {
+		srv.l.Printf("error parsing jwt token on refresh handler: %v\n", err)
+		return nil, status.Error(codes.Unknown, "error generating tokens")
+	}
 
-	result := &users.TokenResponse{
+	userId, err := srv.tokenManager.GetUserIDFromToken(token)
+	if err != nil {
+		srv.l.Printf("error getting user id on refresh handler: %v\n", err)
+		return nil, status.Error(codes.Unknown, "error generating tokens")
+	}
+
+	user, err := srv.userService.GetUserByUUID(ctx, userId)
+	if err != nil {
+		srv.l.Printf("error getting user by id on refresh handler: %v\n", err)
+		return nil, status.Error(codes.Unknown, "error generating tokens")
+	}
+
+	return &users.TokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 		User: &users.UserResponse{
@@ -41,7 +59,5 @@ func (srv UserGRPCHandler) Refresh(ctx context.Context, in *users.RefreshRequest
 				RoleSlug:  user.Role.RoleSlug,
 			},
 		},
-	}
-
-	return result, nil
+	}, nil
 }
