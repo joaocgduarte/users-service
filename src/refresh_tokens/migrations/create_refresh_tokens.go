@@ -20,13 +20,6 @@ func CreateRefreshTokensTable(ctx context.Context, db *sql.DB, logger *log.Logge
 	`
 
 	_, err := db.ExecContext(ctx, query)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = db.ExecContext(ctx, query)
-
 	return err
 }
 

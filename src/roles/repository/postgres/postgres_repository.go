@@ -97,7 +97,11 @@ func (r Repository) Store(ctx context.Context, role domain.Role) (domain.Role, e
 		role.ID = uuid.New()
 	}
 
-	query := `INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *`
+	query := `
+		INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5) 
+		RETURNING id, role_slug, role_label, created_at, updated_at
+	`
 
 	stmt, err := r.Db.PrepareContext(ctx, query)
 	if err != nil {

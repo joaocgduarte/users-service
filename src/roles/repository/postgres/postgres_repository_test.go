@@ -144,7 +144,6 @@ func TestGetBySlug_Success(t *testing.T) {
 	roleId := uuid.New()
 
 	expectedResult := sqlmock.NewRows([]string{"id", "role_slug", "role_label", "created_at", "updated_at"})
-
 	expectedResult.AddRow(roleId, "slug", "Slug Role", createdAt, createdAt)
 
 	query := `SELECT id, role_slug, role_label, created_at, updated_at FROM roles WHERE deleted_at IS NULL and role_slug=$1;`
@@ -246,7 +245,11 @@ func TestStore_FailPrepareQuery(t *testing.T) {
 	assert.Nil(t, err)
 
 	id := uuid.New()
-	query := `INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *`
+	query := `
+		INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5) 
+		RETURNING id, role_slug, role_label, created_at, updated_at
+	`
 	mock.ExpectPrepare(regexp.QuoteMeta(query)).
 		ExpectQuery().
 		WithArgs(id, "slug", "label", anyTime{}, anyTime{}).
@@ -268,7 +271,11 @@ func TestStore_TimeoutReached(t *testing.T) {
 	assert.Nil(t, err)
 
 	id := uuid.New()
-	query := `INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *`
+	query := `
+		INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5) 
+		RETURNING id, role_slug, role_label, created_at, updated_at
+	`
 	mock.ExpectPrepare(regexp.QuoteMeta(query)).
 		ExpectQuery().
 		WithArgs(id, "slug", "label", anyTime{}, anyTime{}).
@@ -299,7 +306,11 @@ func TestStore_Success(t *testing.T) {
 	expectedResult.AddRow(roleId, "slug", "label", createdAt, createdAt)
 
 	id := uuid.New()
-	query := `INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *`
+	query := `
+		INSERT INTO roles (id, role_slug, role_label, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5) 
+		RETURNING id, role_slug, role_label, created_at, updated_at
+	`
 	mock.ExpectPrepare(regexp.QuoteMeta(query)).
 		ExpectQuery().
 		WithArgs(id, "slug", "label", anyTime{}, anyTime{}).

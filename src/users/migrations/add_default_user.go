@@ -46,10 +46,11 @@ func AddDefaultUser(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 		Password: defaultUserPassword,
 	})
 
-	if err != nil {
+	if err != nil && err != domain.ErrNotFound {
 		logger.Printf("error checking if user exists add-default-user migration: %v", err)
 		return err
 	}
+
 	if user != nil {
 		logger.Println("user already exists, skipping add-default-user migration")
 		return nil
