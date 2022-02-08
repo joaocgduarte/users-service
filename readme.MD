@@ -15,7 +15,7 @@ Simple user management microservice.
 - [x] Register a new user with a certain role (needs to have a valid JWT).
 - [ ] CRUD For the users and roles (incomplete right now).
 - [x] Integrate everything in a gRPC Service.
-- [ ] Add proper gRPC error handling.
+- [x] Add proper gRPC error handling.
 - [ ] Test everything.
 
 ## Installation
