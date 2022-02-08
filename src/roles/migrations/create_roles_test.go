@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateUsers_FailExec(t *testing.T) {
+func TestCreateRoles_FailExec(t *testing.T) {
 	migration := NewCreateRolesMigration()
 	assert.Equal(t, migration.Name, "create-roles-table")
 
@@ -36,7 +36,7 @@ func TestCreateUsers_FailExec(t *testing.T) {
 	assert.Equal(t, err.Error(), "boom")
 }
 
-func TestCreateUsers_TimeoutReached(t *testing.T) {
+func TestCreateRoles_TimeoutReached(t *testing.T) {
 	migration := NewCreateRolesMigration()
 	assert.Equal(t, migration.Name, "create-roles-table")
 
@@ -66,7 +66,7 @@ func TestCreateUsers_TimeoutReached(t *testing.T) {
 	assert.Equal(t, err.Error(), "canceling query due to user request")
 }
 
-func TestCreateUsers_Success(t *testing.T) {
+func TestCreateRoles_Success(t *testing.T) {
 	migration := NewCreateRolesMigration()
 	assert.Equal(t, migration.Name, "create-roles-table")
 
