@@ -11,8 +11,8 @@ import (
 // Logout handler.
 // Deletes a refresh token from the database
 func (srv UserGRPCHandler) Logout(ctx context.Context, in *users.RefreshRequest) (*users.TokenResponse, error) {
-	if len(in.RefreshToken) == 0 {
-		return nil, status.Error(codes.NotFound, "resource found")
+	if in == nil || len(in.RefreshToken) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
 
 	isDeleted := srv.tokenManager.DeleteRefreshToken(ctx, in.RefreshToken)

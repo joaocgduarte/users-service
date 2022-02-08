@@ -10,14 +10,14 @@ import (
 )
 
 // Gets the tokens for the login
-func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *users.LoginRequest) (*users.TokenResponse, error) {
-	if len(loginRequest.Username) == 0 || len(loginRequest.Password) == 0 {
+func (srv UserGRPCHandler) Login(ctx context.Context, in *users.LoginRequest) (*users.TokenResponse, error) {
+	if in == nil || len(in.Username) == 0 || len(in.Password) == 0 {
 		return nil, status.Error(codes.NotFound, "resource found")
 	}
 
 	user, err := srv.userService.GetUserByLogin(ctx, domain.GetUserRequest{
-		Username: loginRequest.GetUsername(),
-		Password: loginRequest.GetPassword(),
+		Username: in.GetUsername(),
+		Password: in.GetPassword(),
 	})
 
 	if err != nil {
@@ -27,7 +27,6 @@ func (srv UserGRPCHandler) Login(ctx context.Context, loginRequest *users.LoginR
 
 	// Generates the tokens of said user.
 	token, err := srv.tokenManager.GenerateTokens(ctx, user)
-
 	if err != nil {
 		srv.l.Printf("error generating tokens on login: %v\n", err)
 		return nil, status.Error(codes.Unknown, "error generating tokens")
