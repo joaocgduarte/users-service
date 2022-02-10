@@ -90,12 +90,11 @@ func createDatabaseContainer(logger *log.Logger, settings testDatabaseSettings, 
 		Repository: "postgres",
 		Tag:        "latest",
 		Env: []string{
-			"POSTGRES_PASSWORD=secret",
-			"POSTGRES_USER=user_name",
-			"POSTGRES_DB=dbname",
+			"POSTGRES_PASSWORD=" + settings.PostgresPassword,
+			"POSTGRES_USER=" + settings.PostgresUser,
+			"POSTGRES_DB=" + settings.PostgresDb,
 			"listen_addresses = '*'",
 		},
-		ExposedPorts: []string{"5432"},
 	}, func(config *docker.HostConfig) {
 		config.AutoRemove = true
 		config.RestartPolicy = docker.RestartPolicy{Name: "no"}

@@ -16,11 +16,12 @@ Simple user management microservice.
 - [ ] CRUD For the users and roles (incomplete right now).
 - [x] Add proper gRPC error handling.
 - [x] Unit Test everything.
-- [ ] Add integration tests.
+- [ ] Do all the service integration tests.
 
 ## Installation
 ### Requirements
-1. Have docker and docker-compose installed.
+1. Have docker, docker-compose installed.
+2. Have golang installed if you want to run the unit and integration tests on your machine.
 
 ### Process to install
 ```
@@ -29,6 +30,7 @@ cd ~/workspace
 git clone git@github.com:plagioriginal/user-api-todos.git
 cd user-api-todos
 cp .env.example .env
+go test ./...
 docker-compose up
 ```
 You will have available a gRPC service running at http://localhost:8080 (port is editable in the `.env` file).
