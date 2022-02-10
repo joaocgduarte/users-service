@@ -17,7 +17,7 @@ RUN go get github.com/cespare/reflex
 RUN go mod download
 
 # Run test
-RUN go test ./...
+RUN go test `go list ./... | grep -v integration-tests`
 
 # # Build the application
 RUN go build -o main .
