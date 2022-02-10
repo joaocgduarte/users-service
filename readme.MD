@@ -27,13 +27,21 @@ Simple user management microservice.
 ```
 docker network create -d bridge todos-infrastructure
 cd ~/workspace
-git clone git@github.com:plagioriginal/user-api-todos.git
-cd user-api-todos
+git clone git@github.com:plagioriginal/users-service.git
+cd users-service
 cp .env.example .env
-go test ./...
 docker-compose up
 ```
 You will have available a gRPC service running at http://localhost:8080 (port is editable in the `.env` file).
+
+## Run unit and integration tests
+```
+docker pull postgres
+cd ~/workspace/users-service/src
+go test ./...
+```
+
+Need to pull latest postgres image to run the integration tests.
 
 ## Overall project architecture
 
@@ -44,6 +52,7 @@ You will have available a gRPC service running at http://localhost:8080 (port is
 
 ### Users gRPC
 - Manages the users in the architecture
+- Uses [Users Service Grpc](https://github.com/plagioriginal/users-service-grpc) package for contract.
 
 ### To-dos gRPC
 - Manages all the to-dos.
