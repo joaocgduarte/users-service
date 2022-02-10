@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
@@ -20,7 +19,7 @@ func TestDeleteToken_ErrorIfRepoFails(t *testing.T) {
 	tokenRepo.On("Delete", mock.Anything, id).
 		Once().Return(errors.New("boom"))
 
-	err := New(tokenRepo, nil, time.Duration(5*time.Second)).
+	err := newService(tokenRepo, nil).
 		DeleteToken(context.TODO(), domain.RefreshToken{
 			Id: id,
 		})
@@ -37,7 +36,7 @@ func TestDeleteToken_Success(t *testing.T) {
 	tokenRepo.On("Delete", mock.Anything, id).
 		Once().Return(nil)
 
-	err := New(tokenRepo, nil, time.Duration(5*time.Second)).
+	err := newService(tokenRepo, nil).
 		DeleteToken(context.TODO(), domain.RefreshToken{
 			Id: id,
 		})

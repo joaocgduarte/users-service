@@ -24,7 +24,7 @@ func TestGetUserByToken_ErrorIfRepoFails(t *testing.T) {
 	userRepo.On("GetByRefreshToken", mock.Anything, token.Id).
 		Once().Return(nil, errors.New("boom"))
 
-	res, err := New(nil, userRepo, time.Duration(5*time.Second)).
+	res, err := newService(nil, userRepo).
 		GetUserByToken(context.TODO(), token)
 
 	assert.Nil(t, res)
@@ -46,7 +46,7 @@ func TestGetUserByToken_Success(t *testing.T) {
 		Username: "cenas",
 	}, nil)
 
-	res, err := New(nil, userRepo, time.Duration(5*time.Second)).
+	res, err := newService(nil, userRepo).
 		GetUserByToken(context.TODO(), token)
 
 	assert.Nil(t, err)

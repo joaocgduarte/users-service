@@ -80,7 +80,7 @@ func main() {
 	refreshTokenRepo := _refreshTokensRepo.New(db)
 
 	// Creating all the services.
-	refreshTokenService := _refreshTokensService.New(refreshTokenRepo, userRepo, timeoutContext)
+	refreshTokenService := _refreshTokensService.New(logger, refreshTokenRepo, userRepo, timeoutContext)
 	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService, roleRepo)
 	userService := _usersService.New(logger, userRepo, roleRepo, timeoutContext)
 

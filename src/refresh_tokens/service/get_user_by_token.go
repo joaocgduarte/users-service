@@ -13,6 +13,7 @@ func (s DefaultRefreshTokenService) GetUserByToken(ctx context.Context, token do
 
 	user, err := s.UserRepo.GetByRefreshToken(ctx, token.Id)
 	if err != nil {
+		s.Logger.Printf("error getting user from token {%s}: %v\n", token.Id.String(), err)
 		return nil, err
 	}
 

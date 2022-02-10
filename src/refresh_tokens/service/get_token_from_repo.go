@@ -14,6 +14,7 @@ func (s DefaultRefreshTokenService) GetTokenFromRepo(ctx context.Context, token 
 
 	refreshToken, err := s.TokenRepo.GetByToken(ctx, token)
 	if err != nil {
+		s.Logger.Printf("error fetching refresh token by value {%s}: %v\n", token.String(), err)
 		return domain.RefreshToken{}, err
 	}
 	return refreshToken, nil

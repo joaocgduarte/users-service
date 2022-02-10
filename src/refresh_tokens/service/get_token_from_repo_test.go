@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/plagioriginal/user-microservice/domain"
@@ -20,7 +19,7 @@ func TestGetTokenFromRepo_ErrorIfRepoFails(t *testing.T) {
 	tokenRepo.On("GetByToken", mock.Anything, token).
 		Once().Return(domain.RefreshToken{}, errors.New("boom"))
 
-	res, err := New(tokenRepo, nil, time.Duration(5*time.Second)).
+	res, err := newService(tokenRepo, nil).
 		GetTokenFromRepo(context.TODO(), token)
 
 	assert.Empty(t, res)
@@ -38,7 +37,7 @@ func TestGetTokenFromRepo_Success(t *testing.T) {
 		Token: token,
 	}, nil)
 
-	res, err := New(tokenRepo, nil, time.Duration(5*time.Second)).
+	res, err := newService(tokenRepo, nil).
 		GetTokenFromRepo(context.TODO(), token)
 
 	assert.Nil(t, err)
