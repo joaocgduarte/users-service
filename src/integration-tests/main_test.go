@@ -24,6 +24,7 @@ import (
 	"github.com/plagioriginal/user-microservice/users/tokens"
 	users "github.com/plagioriginal/users-service-grpc/users"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -159,7 +160,7 @@ func setupGrpcClient(listener *bufconn.Listener, logger *log.Logger) func() {
 	grpcDialer := func(context.Context, string) (net.Conn, error) {
 		return listener.Dial()
 	}
-	connection, err := grpc.Dial("", grpc.WithInsecure(), grpc.WithContextDialer(grpcDialer))
+	connection, err := grpc.Dial("", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(grpcDialer))
 	if err != nil {
 		log.Fatalf("failed to generate grpc client")
 	}
