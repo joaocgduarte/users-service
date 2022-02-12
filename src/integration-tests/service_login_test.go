@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	users "github.com/plagioriginal/users-service-grpc/users"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -25,6 +27,44 @@ func Test_Grpc_Login(t *testing.T) {
 			wantedErrCode:    codes.NotFound,
 			wantedErrMessage: "resource found",
 		},
+		{
+			name: "login with invalid username",
+			req: &users.LoginRequest{
+				Username: "invalid username",
+				Password: "doesn't matter",
+			},
+			wantedRes:        nil,
+			wantedErrCode:    codes.NotFound,
+			wantedErrMessage: "resource found",
+		},
+		{
+			name: "login with invalid password",
+			req: &users.LoginRequest{
+				Username: "default-user",
+				Password: "doesn't matter",
+			},
+			wantedRes:        nil,
+			wantedErrCode:    codes.NotFound,
+			wantedErrMessage: "resource found",
+		},
+		{
+			name: "success",
+			req: &users.LoginRequest{
+				Username: databaseSettings.DefaultUserUsername,
+				Password: databaseSettings.DefaultUserPassword,
+			},
+			wantedRes: &users.TokenResponse{
+				User: &users.UserResponse{
+					Username: databaseSettings.DefaultUserUsername,
+					Role: &users.UserResponse_RoleResponse{
+						RoleLabel: "Administrator",
+						RoleSlug:  "admin",
+					},
+				},
+			},
+			wantedErrCode:    0,
+			wantedErrMessage: "",
+		},
 	}
 
 	for _, test := range tests {
@@ -41,7 +81,23 @@ func Test_Grpc_Login(t *testing.T) {
 			}
 
 			assert.Nil(t, err)
-			assert.EqualValues(t, test.wantedRes, res)
+			assert.Equal(t, test.wantedRes.User.Username, res.User.Username)
+			assert.Equal(t, test.wantedRes.User.Role.RoleLabel, res.User.Role.RoleLabel)
+			assert.Equal(t, test.wantedRes.User.Role.RoleSlug, res.User.Role.RoleSlug)
+
+			accessToken := res.AccessToken
+			refreshToken := res.RefreshToken
+
+			jwt, err := jwt.Parse(accessToken, func(*jwt.Token) (interface{}, error) {
+				return []byte(databaseSettings.JwtSecret), nil
+			})
+			assert.Nil(t, err)
+			assert.True(t, jwt.Valid)
+
+			refreshTokenUuid, err := uuid.Parse(refreshToken)
+			assert.Nil(t, err)
+			assert.NotEqual(t, refreshTokenUuid, uuid.Nil)
+
 		})
 	}
 	userClient.Login(context.Background(), nil)

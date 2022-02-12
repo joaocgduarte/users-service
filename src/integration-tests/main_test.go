@@ -27,8 +27,9 @@ import (
 )
 
 var (
-	db         *sql.DB
-	userClient users.UsersClient
+	db               *sql.DB
+	userClient       users.UsersClient
+	databaseSettings database.MigrationSettings
 )
 
 type testDatabaseSettings struct {
@@ -52,12 +53,14 @@ func TestMain(m *testing.M) {
 	defer db.Close()
 
 	//Do the db migrations
-	database.DoMigrations(logger, db, database.MigrationSettings{
+	databaseSettings = database.MigrationSettings{
 		DefaultUserUsername: "default-user",
 		DefaultUserPassword: "default-password",
 		JwtSecret:           "secret",
 		Timeout:             time.Duration(2) * time.Second,
-	})
+	}
+
+	database.DoMigrations(logger, db, databaseSettings)
 
 	grpcServerStarter, grpcServerFinisher, listener := setupGrpcServer(db, logger)
 	defer grpcServerFinisher()
