@@ -66,7 +66,7 @@ func TestLogin_ErrorGeneratingToken(t *testing.T) {
 	})
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, err, status.Error(codes.Unknown, "error generating tokens"))
+	assert.Equal(t, err, status.Error(codes.Internal, "error generating tokens"))
 	userService.AssertExpectations(t)
 	tokenHandler.AssertExpectations(t)
 }

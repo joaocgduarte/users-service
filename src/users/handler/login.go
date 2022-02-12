@@ -29,7 +29,7 @@ func (srv UserGRPCHandler) Login(ctx context.Context, in *users.LoginRequest) (*
 	token, err := srv.tokenManager.GenerateTokens(ctx, user)
 	if err != nil {
 		srv.l.Printf("error generating tokens on login: %v\n", err)
-		return nil, status.Error(codes.Unknown, "error generating tokens")
+		return nil, status.Error(codes.Internal, "error generating tokens")
 	}
 
 	result := &users.TokenResponse{

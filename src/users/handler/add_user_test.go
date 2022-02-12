@@ -139,7 +139,7 @@ func TestAddUser_ErrorUserStoring(t *testing.T) {
 
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, err, status.Error(codes.Unknown, "error storing user"))
+	assert.Equal(t, err, status.Error(codes.Internal, "error storing user"))
 	accessTokenManager.AssertExpectations(t)
 	userService.AssertExpectations(t)
 }

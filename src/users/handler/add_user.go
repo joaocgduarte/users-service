@@ -48,7 +48,7 @@ func (srv UserGRPCHandler) AddUser(ctx context.Context, in *users.NewUserRequest
 
 	if err != nil {
 		srv.l.Printf("error storing a user: %v\n", err)
-		return nil, status.Error(codes.Unknown, "error storing user")
+		return nil, status.Error(codes.Internal, "error storing user")
 	}
 
 	return &users.UserResponse{

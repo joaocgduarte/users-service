@@ -55,7 +55,7 @@ func TestRefresh_ErrorRefreshingTokens(t *testing.T) {
 	})
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, err, status.Error(codes.Unknown, "error generating tokens"))
+	assert.Equal(t, err, status.Error(codes.Internal, "error generating tokens"))
 	tokenHandler.AssertExpectations(t)
 }
 
@@ -81,7 +81,7 @@ func TestRefresh_ErrorParsingAccessToken(t *testing.T) {
 	})
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, err, status.Error(codes.Unknown, "error generating tokens"))
+	assert.Equal(t, err, status.Error(codes.Internal, "error generating tokens"))
 	tokenHandler.AssertExpectations(t)
 }
 
@@ -109,7 +109,7 @@ func TestRefresh_ErrorGettingUserIdFromToken(t *testing.T) {
 	})
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, err, status.Error(codes.Unknown, "error generating tokens"))
+	assert.Equal(t, err, status.Error(codes.Internal, "error generating tokens"))
 	tokenHandler.AssertExpectations(t)
 }
 
@@ -141,7 +141,7 @@ func TestRefresh_ErrorGettingUserByUuid(t *testing.T) {
 	})
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, err, status.Error(codes.Unknown, "error generating tokens"))
+	assert.Equal(t, err, status.Error(codes.Internal, "error generating tokens"))
 	tokenHandler.AssertExpectations(t)
 	userService.AssertExpectations(t)
 }
