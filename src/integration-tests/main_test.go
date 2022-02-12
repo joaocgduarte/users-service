@@ -14,6 +14,7 @@ import (
 	"github.com/ory/dockertest"
 	"github.com/ory/dockertest/docker"
 	"github.com/plagioriginal/user-microservice/database"
+	"github.com/plagioriginal/user-microservice/domain"
 	_refreshTokensRepo "github.com/plagioriginal/user-microservice/refresh-tokens/repository/postgres"
 	_refreshTokensService "github.com/plagioriginal/user-microservice/refresh-tokens/service"
 	_rolesRepo "github.com/plagioriginal/user-microservice/roles/repository/postgres"
@@ -28,6 +29,7 @@ import (
 
 var (
 	db               *sql.DB
+	refreshTokenRepo domain.RefreshTokenRepository
 	userClient       users.UsersClient
 	databaseSettings database.MigrationSettings
 )
@@ -131,7 +133,7 @@ func setupGrpcServer(dbSource *sql.DB, logger *log.Logger) (func(), func(), *buf
 	// Creating all the repos
 	userRepo := _usersRepo.New(db)
 	roleRepo := _rolesRepo.New(db)
-	refreshTokenRepo := _refreshTokensRepo.New(db)
+	refreshTokenRepo = _refreshTokensRepo.New(db)
 
 	// Creating all the services.
 	refreshTokenService := _refreshTokensService.New(logger, refreshTokenRepo, userRepo, time.Duration(2*time.Second))

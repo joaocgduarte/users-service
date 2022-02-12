@@ -82,7 +82,6 @@ func Test_Grpc_Add_User(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-
 			accessToken := ""
 
 			if test.loginReq != nil {
