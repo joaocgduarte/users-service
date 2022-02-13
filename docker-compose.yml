@@ -5,7 +5,7 @@ services:
             context: ./src
             target: ${DOCKER_TARGET}
         ports: 
-            - ${API_PORT}:${API_PORT}
+            - ${APP_PORT}:${APP_PORT}
         container_name: users-service
         depends_on:
             - users-service-db

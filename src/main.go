@@ -61,14 +61,14 @@ func main() {
 	users.RegisterUsersServer(gs, grpcServer)
 
 	reflection.Register(gs)
-	l, err := net.Listen("tcp", ":"+os.Getenv("API_PORT"))
+	l, err := net.Listen("tcp", ":"+os.Getenv("APP_PORT"))
 
 	if err != nil {
 		logger.Fatalln("Unable to listen to port")
 		os.Exit(1)
 	}
 
-	logger.Println("gRPC Server running at port: " + os.Getenv("API_PORT"))
+	logger.Println("gRPC Server running at port: " + os.Getenv("APP_PORT"))
 	if err = gs.Serve(l); err != nil {
 		logger.Fatalln(err)
 	}

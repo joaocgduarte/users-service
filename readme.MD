@@ -13,10 +13,10 @@ Simple user management microservice.
 - [x] Request for login, returning JWT token and Refresh token, that the API Gateway will use.
 - [x] Refresh the access tokens, if current refresh token is valid.
 - [x] Register a new user with a certain role (needs to have a valid JWT).
-- [ ] CRUD For the users and roles (incomplete right now).
+- [ ] CRUD For the users and roles (missing Delete, Patch and Read routes for user and roles).
 - [x] Add proper gRPC error handling.
 - [x] Unit Test everything.
-- [ ] Do all the service integration tests.
+- [x] Do all the service integration tests.
 
 ## Installation
 ### Requirements
@@ -34,7 +34,7 @@ docker-compose up
 ```
 You will have available a gRPC service running at http://localhost:8080 (port is editable in the `.env` file).
 
-## Run unit and integration tests
+### Run unit and integration tests
 ```
 docker pull postgres
 cd ~/workspace/users-service/src
@@ -46,17 +46,22 @@ Need to pull latest postgres image to run the integration tests.
 ## Overall project architecture
 
 ### API Gateway
+[Click here](https://github.com/plagioriginal/api-gateway) for repository.
 - REST API (returns in JSON)
 - A client for all the gRPC microservices (reads all the gRPC services).
 - Responsible for the interactions between all the microservices.
 
 ### Users gRPC
-- Manages the users in the architecture
+[Click here](https://github.com/plagioriginal/users-service) for repository.
+- Manages the users (CRUD operations)
+- Manages logins, logouts and refresh-token requests.
 - Uses [Users Service Grpc](https://github.com/plagioriginal/users-service-grpc) package for contract.
 
 ### To-dos gRPC
+Repository yet to be created.
 - Manages all the to-dos.
 - Maybe will be used for note-taking as well.
 
 ### Frontend
+[Click here](https://github.com/plagioriginal/todos-frontend) for repository.
 - In React, will only call and use data from the API Gateway.
