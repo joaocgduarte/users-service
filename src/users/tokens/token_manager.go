@@ -95,6 +95,7 @@ func (t TokenManager) GenerateTokens(ctx context.Context, user *domain.User) (do
 	return domain.TokenResponse{
 		AccessToken:  jwtToken,
 		RefreshToken: refreshToken.String(),
+		User:         *user,
 	}, nil
 }
 

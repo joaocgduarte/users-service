@@ -26,25 +26,7 @@ func (srv UserGRPCHandler) Refresh(ctx context.Context, in *users.RefreshRequest
 		srv.l.Printf("error generating tokens on refresh: %v\n", err)
 		return nil, status.Error(codes.Internal, "error generating tokens")
 	}
-
-	token, err := srv.tokenManager.ParseJWT(tokens.AccessToken)
-	if err != nil {
-		srv.l.Printf("error parsing jwt token on refresh handler: %v\n", err)
-		return nil, status.Error(codes.Internal, "error generating tokens")
-	}
-
-	userId, err := srv.tokenManager.GetUserIDFromToken(token)
-	if err != nil {
-		srv.l.Printf("error getting user id on refresh handler: %v\n", err)
-		return nil, status.Error(codes.Internal, "error generating tokens")
-	}
-
-	user, err := srv.userService.GetUserByUUID(ctx, userId)
-	if err != nil {
-		srv.l.Printf("error getting user by id on refresh handler: %v\n", err)
-		return nil, status.Error(codes.Internal, "error generating tokens")
-	}
-
+	user := tokens.User
 	return &users.TokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,

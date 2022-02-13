@@ -18,6 +18,7 @@ type RefreshToken struct {
 type TokenResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+	User         User   `json:"-"`
 }
 
 type AccessTokenHandler interface {
