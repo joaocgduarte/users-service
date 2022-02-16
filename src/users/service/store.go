@@ -17,7 +17,7 @@ func (s DefaultUserService) Store(ctx context.Context, request domain.StoreUserR
 		return nil, err
 	}
 
-	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), s.BcryptHashingCost)
 	if err != nil {
 		return nil, err
 	}

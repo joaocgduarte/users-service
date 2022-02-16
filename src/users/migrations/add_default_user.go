@@ -21,51 +21,51 @@ const (
 )
 
 // Adds default user to the DB.
-func AddDefaultUser(ctx context.Context, db *sql.DB, logger *log.Logger) error {
-	defaultUserUsername := helpers.StringFromContext(ctx, DefaultUserNameKey)
-	defaultUserPassword := helpers.StringFromContext(ctx, DefaultUserPasswordKey)
+func AddDefaultUser(bcryptCost int) func(ctx context.Context, db *sql.DB, logger *log.Logger) error {
+	return func(ctx context.Context, db *sql.DB, logger *log.Logger) error {
+		defaultUserUsername := helpers.StringFromContext(ctx, DefaultUserNameKey)
+		defaultUserPassword := helpers.StringFromContext(ctx, DefaultUserPasswordKey)
 
-	if len(defaultUserUsername) == 0 || len(defaultUserPassword) == 0 {
-		return errors.New("cant add default users without credentials")
-	}
+		if len(defaultUserUsername) == 0 || len(defaultUserPassword) == 0 {
+			return errors.New("cant add default users without credentials")
+		}
 
-	timeoutDuration := time.Duration(10) * time.Second
-	roleRepo := _rolesRepo.New(db)
-	userRepo := _usersRepo.New(db)
-	adminRoleSlug := domain.DEFAULT_ROLE_ADMIN.RoleSlug
+		timeoutDuration := time.Duration(5) * time.Second
+		roleRepo := _rolesRepo.New(db)
+		userRepo := _usersRepo.New(db)
+		adminRoleSlug := domain.DEFAULT_ROLE_ADMIN.RoleSlug
 
-	userService := _usersService.New(
-		userRepo,
-		roleRepo,
-		timeoutDuration,
-	)
+		userService := _usersService.New(
+			userRepo,
+			roleRepo,
+			timeoutDuration,
+			bcryptCost,
+		)
 
-	user, _ := userService.GetUserByLogin(ctx, domain.GetUserRequest{
-		Username: defaultUserUsername,
-		Password: defaultUserPassword,
-	})
+		user, _ := userRepo.GetByUsername(ctx, defaultUserUsername)
 
-	if user != nil {
-		logger.Println("user already exists, skipping add-default-user migration")
+		if user != nil {
+			logger.Println("user already exists, skipping add-default-user migration")
+			return nil
+		}
+
+		req := domain.StoreUserRequest{
+			Username: defaultUserUsername,
+			Password: defaultUserPassword,
+			RoleSlug: adminRoleSlug,
+		}
+		if _, err := userService.Store(ctx, req); err != nil {
+			logger.Printf("error storing user on add-default-user migration: %v", err)
+			return err
+		}
 		return nil
 	}
-
-	req := domain.StoreUserRequest{
-		Username: defaultUserUsername,
-		Password: defaultUserPassword,
-		RoleSlug: adminRoleSlug,
-	}
-	if _, err := userService.Store(ctx, req); err != nil {
-		logger.Printf("error storing user on add-default-user migration: %v", err)
-		return err
-	}
-	return nil
 }
 
 // Adds default user to the DB.
-func NewAddDefaultUserMigration() migrations.Migration {
+func NewAddDefaultUserMigration(bcryptCost int) migrations.Migration {
 	return migrations.Migration{
 		Name: "add-default-user",
-		Up:   AddDefaultUser,
+		Up:   AddDefaultUser(bcryptCost),
 	}
 }

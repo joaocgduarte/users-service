@@ -43,6 +43,7 @@ func main() {
 		DefaultUserPassword: os.Getenv("DEFAULT_USER_PASSWORD"),
 		JwtSecret:           jwtTokenSecret,
 		Timeout:             timeoutContext,
+		BcryptCost:          _usersService.ProductionBcryptCost,
 	})
 
 	// Creating all the repos
@@ -53,7 +54,7 @@ func main() {
 	// Creating all the services.
 	refreshTokenService := _refreshTokensService.New(logger, refreshTokenRepo, userRepo, timeoutContext)
 	tokenManager := tokens.NewTokenManager(jwtTokenSecret, refreshTokenService, roleRepo)
-	userService := _usersService.New(userRepo, roleRepo, timeoutContext)
+	userService := _usersService.New(userRepo, roleRepo, timeoutContext, _usersService.ProductionBcryptCost)
 
 	// @todo: refactor server instantiation.
 	gs := grpc.NewServer()

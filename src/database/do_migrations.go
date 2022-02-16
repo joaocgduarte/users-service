@@ -17,6 +17,7 @@ type MigrationSettings struct {
 	DefaultUserPassword string
 	JwtSecret           string
 	Timeout             time.Duration
+	BcryptCost          int
 }
 
 func DoMigrations(l *log.Logger, db *sql.DB, settings MigrationSettings) {
@@ -33,7 +34,7 @@ func DoMigrations(l *log.Logger, db *sql.DB, settings MigrationSettings) {
 
 			// Seeds
 			_rolesMigrations.NewAddRolesMigration(),
-			_usersMigrations.NewAddDefaultUserMigration(),
+			_usersMigrations.NewAddDefaultUserMigration(settings.BcryptCost),
 		},
 	}
 

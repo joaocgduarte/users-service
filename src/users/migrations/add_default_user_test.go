@@ -13,7 +13,7 @@ import (
 // Rest of the cases are already tested in service store test
 
 func TestAddDefaultUserMigration_FailtIfNoDefaultUserInContext(t *testing.T) {
-	migration := NewAddDefaultUserMigration()
+	migration := NewAddDefaultUserMigration(2)
 	assert.Equal(t, migration.Name, "add-default-user")
 
 	err := migration.Up(context.TODO(), nil, nil)
@@ -22,7 +22,7 @@ func TestAddDefaultUserMigration_FailtIfNoDefaultUserInContext(t *testing.T) {
 }
 
 func TestAddDefaultUserMigration_QueryError(t *testing.T) {
-	migration := NewAddDefaultUserMigration()
+	migration := NewAddDefaultUserMigration(2)
 	assert.Equal(t, migration.Name, "add-default-user")
 
 	db, _, err := sqlmock.New()
