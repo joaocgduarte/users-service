@@ -108,8 +108,8 @@ func createDatabaseContainer(logger *log.Logger, settings testDatabaseSettings, 
 	if err != nil {
 		logger.Fatalf("could not start resource: %s", err)
 	}
-	resource.Expire(60)
-	pool.MaxWait = 50 * time.Second
+	resource.Expire(120)
+	pool.MaxWait = 120 * time.Second
 	return resource
 }
 
