@@ -47,7 +47,7 @@ func Test_GetUserByLogin_FailIfGetByUsernameError(t *testing.T) {
 	user, err := service.GetUserByLogin(context.TODO(), domain.GetUserRequest{Username: "username", Password: "casd"})
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "resource not found")
+	assert.Contains(t, err.Error(), "boom")
 	userRepo.AssertExpectations(t)
 }
 
@@ -69,7 +69,7 @@ func Test_GetUserByLogin_FailIfRoleFetchingError(t *testing.T) {
 	user, err := service.GetUserByLogin(context.TODO(), domain.GetUserRequest{Username: "username", Password: "casd"})
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "resource not found")
+	assert.Contains(t, err.Error(), "boom")
 	roleRepo.AssertExpectations(t)
 	userRepo.AssertExpectations(t)
 }
@@ -94,7 +94,6 @@ func Test_GetUserByLogin_FailIfPasswordsDontMatchError(t *testing.T) {
 	user, err := service.GetUserByLogin(context.TODO(), domain.GetUserRequest{Username: "username", Password: "casd"})
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "resource not found")
 	roleRepo.AssertExpectations(t)
 	userRepo.AssertExpectations(t)
 }

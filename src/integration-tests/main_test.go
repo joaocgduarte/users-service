@@ -60,7 +60,7 @@ func TestMain(m *testing.M) {
 		DefaultUserUsername: "default-user",
 		DefaultUserPassword: "default-password",
 		JwtSecret:           "secret",
-		Timeout:             time.Duration(2) * time.Second,
+		Timeout:             time.Duration(10) * time.Second,
 	}
 
 	database.DoMigrations(logger, db, databaseSettings)
@@ -137,9 +137,9 @@ func setupGrpcServer(dbSource *sql.DB, logger *log.Logger) (func(), func(), *buf
 	refreshTokenRepo = _refreshTokensRepo.New(db)
 
 	// Creating all the services.
-	refreshTokenService := _refreshTokensService.New(logger, refreshTokenRepo, userRepo, time.Duration(2*time.Second))
+	refreshTokenService := _refreshTokensService.New(logger, refreshTokenRepo, userRepo, time.Duration(10*time.Second))
 	tokenManager := tokens.NewTokenManager("secret", refreshTokenService, roleRepo)
-	userService := _usersService.New(logger, userRepo, roleRepo, time.Duration(2*time.Second))
+	userService := _usersService.New(userRepo, roleRepo, time.Duration(10*time.Second))
 
 	gs := grpc.NewServer()
 	handler := handler.NewUserGRPCHandler(logger, tokenManager, userService)

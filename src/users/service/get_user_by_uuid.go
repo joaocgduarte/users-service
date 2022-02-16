@@ -17,14 +17,12 @@ func (s DefaultUserService) GetUserByUUID(ctx context.Context, id uuid.UUID) (*d
 
 	user, err := s.UserRepo.GetByUUID(ctx, id)
 	if err != nil {
-		s.Logger.Println("error fetching user by uuid: " + err.Error())
-		return nil, domain.ErrNotFound
+		return nil, err
 	}
 
 	userRole, err := s.RoleRepo.GetByUUID(ctx, user.RoleId)
 	if err != nil {
-		s.Logger.Println("error fetching role by uuid: " + err.Error())
-		return nil, domain.ErrNotFound
+		return nil, err
 	}
 	user.Role = &userRole
 	return user, nil

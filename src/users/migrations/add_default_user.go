@@ -29,27 +29,21 @@ func AddDefaultUser(ctx context.Context, db *sql.DB, logger *log.Logger) error {
 		return errors.New("cant add default users without credentials")
 	}
 
-	timeoutDuration := time.Duration(2) * time.Second
+	timeoutDuration := time.Duration(10) * time.Second
 	roleRepo := _rolesRepo.New(db)
 	userRepo := _usersRepo.New(db)
 	adminRoleSlug := domain.DEFAULT_ROLE_ADMIN.RoleSlug
 
 	userService := _usersService.New(
-		logger,
 		userRepo,
 		roleRepo,
 		timeoutDuration,
 	)
 
-	user, err := userService.GetUserByLogin(ctx, domain.GetUserRequest{
+	user, _ := userService.GetUserByLogin(ctx, domain.GetUserRequest{
 		Username: defaultUserUsername,
 		Password: defaultUserPassword,
 	})
-
-	if err != nil && err != domain.ErrNotFound {
-		logger.Printf("error checking if user exists add-default-user migration: %v", err)
-		return err
-	}
 
 	if user != nil {
 		logger.Println("user already exists, skipping add-default-user migration")

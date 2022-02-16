@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/plagioriginal/user-microservice/domain"
 	"golang.org/x/crypto/bcrypt"
@@ -15,14 +14,12 @@ func (s DefaultUserService) Store(ctx context.Context, request domain.StoreUserR
 
 	role, err := s.RoleRepo.GetBySlug(ctx, request.RoleSlug)
 	if err != nil {
-		s.Logger.Println("error fetching role: " + err.Error())
-		return nil, errors.New("error fetching role")
+		return nil, err
 	}
 
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
-		s.Logger.Println("error encrypting password: " + err.Error())
-		return nil, errors.New("error encrypting password")
+		return nil, err
 	}
 	password := string(passwordBytes[:])
 
@@ -32,8 +29,7 @@ func (s DefaultUserService) Store(ctx context.Context, request domain.StoreUserR
 		RoleId:   role.ID,
 	})
 	if err != nil {
-		s.Logger.Println("error storing user: " + err.Error())
-		return nil, errors.New("error storing user")
+		return nil, err
 	}
 
 	user.Role = &role

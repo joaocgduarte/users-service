@@ -22,7 +22,7 @@ func Test_GetUserUUID_FailIfGetByUsernameError(t *testing.T) {
 	user, err := service.GetUserByUUID(context.TODO(), uuid)
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "resource not found")
+	assert.Contains(t, err.Error(), "boom")
 	userRepo.AssertExpectations(t)
 }
 
@@ -45,7 +45,7 @@ func Test_GetUserUUID_FailIfRoleFetchingError(t *testing.T) {
 	user, err := service.GetUserByUUID(context.TODO(), userUuid)
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "resource not found")
+	assert.Contains(t, err.Error(), "boom")
 	roleRepo.AssertExpectations(t)
 	userRepo.AssertExpectations(t)
 }

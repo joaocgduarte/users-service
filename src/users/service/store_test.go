@@ -28,7 +28,7 @@ func Test_Store_FailIfInvalidRole(t *testing.T) {
 
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "error fetching role")
+	assert.Contains(t, err.Error(), "boom")
 	roleRepo.AssertExpectations(t)
 }
 
@@ -53,7 +53,7 @@ func Test_Store_FailIfErrorStoringUser(t *testing.T) {
 
 	assert.Nil(t, user)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "error storing user")
+	assert.Contains(t, err.Error(), "boom")
 	roleRepo.AssertExpectations(t)
 	userRepo.AssertExpectations(t)
 }
