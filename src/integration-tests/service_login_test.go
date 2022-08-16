@@ -28,6 +28,13 @@ func Test_Grpc_Login(t *testing.T) {
 			wantedErrMessage: "resource found",
 		},
 		{
+			name:             "nil login request",
+			req:              &users.LoginRequest{},
+			wantedRes:        nil,
+			wantedErrCode:    codes.NotFound,
+			wantedErrMessage: "resource found",
+		},
+		{
 			name: "login with invalid username",
 			req: &users.LoginRequest{
 				Username: "invalid username",
